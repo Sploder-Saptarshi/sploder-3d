@@ -1,5 +1,21 @@
 {
+  "name": "sploder-3d",
+  "version": "1.0.0",
+  "description": "Sploder 3D World Engine",
+  "scripts": {
+    "build": "grunt build",
+    "watch": "grunt dev",
+    "start": "node server.js",
+    "concat": "grunt concat",
+    "minify": "grunt uglify"
+  },
   "dependencies": {
     "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "grunt": "^1.0.4",
+    "grunt-contrib-concat": "^1.0.1",
+    "grunt-contrib-uglify": "^4.0.1",
+    "grunt-contrib-watch": "^1.1.0"
   }
 }
