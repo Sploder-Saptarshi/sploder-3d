@@ -1,7 +1,17 @@
 module.exports = function(grunt) {
     'use strict';
 
-    // Source file order - must match the original main.js concatenation order
+    // Third-party library files pulled from npm packages (2015-era versions)
+    var vendorFiles = [
+        'node_modules/three/three.js',
+        'node_modules/signals/dist/signals.js',
+        'node_modules/pixi.js/bin/pixi.js',
+        'node_modules/mousetrap/mousetrap.js',
+        'node_modules/stats.js/build/stats.min.js',
+        'src/vendor/stats-global.js'
+    ];
+
+    // Project source file order
     var sourceFiles = [
         'src/vendor/pixi-patches.js',
         'src/vendor/three-box-geometry.js',
@@ -38,7 +48,6 @@ module.exports = function(grunt) {
         'src/rendering/light-map.js',
         'src/rendering/shader-light-map.js',
         'src/scene/scene-model.js',
-        'src/vendor/stats.js',
         'src/camera/game-camera.js',
         'src/camera/game-camera-controls.js',
         'src/core/broadcaster.js',
@@ -50,23 +59,28 @@ module.exports = function(grunt) {
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
 
-        // Concatenate all source files into main.js
+        // Concatenate vendor libraries (from npm) into vendor.js
         concat: {
             options: {
-                separator: '',
-                // Strip the comment headers we added during split
+                separator: '\n',
+                // Strip comment headers added during source split
                 process: function(src, filepath) {
-                    // Remove the first line if it's a comment header we added
                     var lines = src.split('\n');
                     if (lines[0] && lines[0].indexOf('/*') === 0 && lines[0].indexOf('*/') !== -1) {
                         lines.shift();
                     }
-                    // Remove trailing empty lines (keep exactly one trailing newline)
                     while (lines.length > 0 && lines[lines.length - 1] === '') {
                         lines.pop();
                     }
                     return lines.join('\n') + '\n';
                 }
+            },
+            vendor: {
+                options: {
+                    process: false
+                },
+                src: vendorFiles,
+                dest: 'public/scripts/vendor.js'
             },
             dist: {
                 src: sourceFiles,
@@ -78,11 +92,9 @@ module.exports = function(grunt) {
         uglify: {
             options: {
                 mangle: {
-                    // Use single-letter variable names like the original
                     toplevel: false
                 },
                 compress: {
-                    // Match original minification style
                     sequences: true,
                     dead_code: true,
                     conditionals: true,
@@ -93,7 +105,6 @@ module.exports = function(grunt) {
                     drop_console: false
                 },
                 output: {
-                    // Single line output like the original
                     max_line_len: Infinity
                 }
             },
@@ -122,6 +133,7 @@ module.exports = function(grunt) {
 
     // Build tasks
     grunt.registerTask('build', ['concat', 'uglify']);
+    grunt.registerTask('vendor', ['concat:vendor']);
     grunt.registerTask('default', ['build']);
     grunt.registerTask('dev', ['build', 'watch']);
 };

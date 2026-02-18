@@ -17,6 +17,7 @@
             var n = e.image;
             n && ((n.width = i), (n.height = s), (n.data = o));
         })),
+
     (THREE.BoxGeometry = function (e, t, i, s, o, n, a, r) {
         function h(e, t, i, s, o, n, r, h) {
             var E,
@@ -86,6 +87,7 @@
     }),
     (THREE.BoxGeometry.prototype = Object.create(THREE.Geometry.prototype)),
     (THREE.BoxGeometry.prototype.constructor = THREE.BoxGeometry),
+
     (THREE.PlaneBufferGeometry = function (e, t, i, s, o) {
         THREE.BufferGeometry.call(this), (this.type = "PlaneBufferGeometry"), (this.parameters = { width: e, height: t, widthSegments: i, heightSegments: s });
         for (var n = e / 2, a = t / 2, r = i || 1, h = s || 1, l = r + 1, E = h + 1, d = e / r, R = t / h, P = new Float32Array(l * E * 3), c = new Float32Array(l * E * 3), u = new Float32Array(l * E * 2), O = 0, L = 0, S = 0; E > S; S++)
@@ -115,6 +117,7 @@
     }),
     (THREE.PlaneGeometry.prototype = Object.create(THREE.Geometry.prototype)),
     (THREE.PlaneGeometry.prototype.constructor = THREE.PlaneGeometry);
+
 var THREEx = THREEx || {};
 (THREEx.WindowResize = function (e, t) {
     var i = function () {
@@ -129,6 +132,7 @@ var THREEx = THREEx || {};
         }
     );
 }),
+
     window.SPLODER || (window.SPLODER = {}),
     (SPLODER.ACTION_DEFAULT = 0),
     (SPLODER.ACTION_DESELECT = 1),
@@ -159,6 +163,7 @@ var THREEx = THREEx || {};
     (SPLODER.ACTION_DISCONNECT = 26),
     (SPLODER.ACTION_CONTEXT_CHANGE = 27),
     (SPLODER.ACTION_RETURNED_ERROR = 32),
+
     (SPLODER._documentConnected = !1),
     (SPLODER._holdInterval = 0),
     (SPLODER.bind = function (e, t) {
@@ -246,6 +251,7 @@ var THREEx = THREEx || {};
         return e ? e.classList : void 0;
     }),
     (SPLODER.enableButtons = function () {
+
         arguments.length && SPLODER.setButtonsState(arguments, !0);
     }),
     (SPLODER.disableButtons = function () {
@@ -340,11 +346,13 @@ var THREEx = THREEx || {};
             return !1;
         }
     });
+
 var $$ = function () {
     return document.querySelector.apply(document, arguments);
 },
     $$$ = function () {
         return document.querySelectorAll.apply(document, arguments);
+
     };
 (SPLODER.AtlasLoader = function (e) {
     THREE.Loader.call(this, e), (this.withCredentials = !1);
@@ -374,6 +382,7 @@ var $$ = function () {
             a.send(null);
     }),
     (SPLODER.Geom = {}),
+
     (SPLODER.Geom.pointWithinRect = function (e, t, i, s) {
         return (s = s || 1), e >= i.x * s && t >= i.y * s && e <= (i.x + i.width) * s && t <= (i.y + i.height) * s;
     }),
@@ -500,6 +509,7 @@ var $$ = function () {
     (SPLODER.Geom.closePolygon = function (e) {
         e.length >= 4 && !SPLODER.Geom.polygonIsClosed(e) && e.push(e[0], e[1]);
     }),
+
     (SPLODER.ShapeUtils = {}),
     (SPLODER.ShapeUtils.errorOccured = new signals.Signal()),
     (SPLODER.ShapeUtils._compare = function (e, t) {
@@ -766,6 +776,7 @@ var $$ = function () {
             console.log(_.stack);
         }
     }),
+
     (SPLODER.MeshUtils = {}),
     (SPLODER.MeshUtils.getPlaneGeometry = function (e, t, i, s, o, n, a, r) {
         (n = n || 1), (a = a || 1);
@@ -866,6 +877,7 @@ var $$ = function () {
             }
         }
     }),
+
     (SPLODER.SceneAssets = function () {
         var e = null,
             t = 16,
@@ -1020,6 +1032,7 @@ var $$ = function () {
     (SPLODER.SceneAssets.TYPE_BIPEDS = 5),
     (SPLODER.SceneAssets.TYPE_LIQUIDMASK = 6),
     (SPLODER.SceneAssets.itemTypeMap = [0, 0, 1, 2, 4, 5]),
+
     (SPLODER.Treenode = function () {
         this.defaults = null;
         var e = this,
@@ -1064,6 +1077,7 @@ var $$ = function () {
     (SPLODER.Treenode.applyAttribs = function (e, t) {
         if (t instanceof Array) for (var i = 0; i < t.length; i++) e.setAttrib(i, t[i]);
     }),
+
     (SPLODER.States = function () {
         var e;
         (this.init = function () {
@@ -1111,6 +1125,7 @@ var $$ = function () {
                 }
             });
     }),
+
     (SPLODER.Rect = function (e, t, i, s, o) {
         (this.id = null), (this.type = e || 0), (this.x = t || 0), (this.y = i || 0), (this.width = s || 0), (this.height = o || 0);
         var n = this;
@@ -1135,6 +1150,7 @@ var $$ = function () {
             for (var o = e.split(","), n = 0; n < o.length; n++) s[n] && ((0 == n && t) || (this[s[n]] = parseInt(o[n])));
         }
     }),
+
     (SPLODER.Item = function (e, t, i, s, o, n) {
         SPLODER.Treenode.call(this), SPLODER.Rect.call(this, e, t, i, s, o);
         var a = t || 0,
@@ -1327,6 +1343,7 @@ var $$ = function () {
             (e.defaultsByType[e.TYPE_LIGHT][e.PROPERTY_COLOR] = 0),
             (e.defaultsByType[e.TYPE_LIGHT][e.PROPERTY_POWER] = 20);
     })(SPLODER.Item),
+
     (SPLODER.BipedPoses = function () {
         var e,
             t,
@@ -1688,6 +1705,7 @@ var $$ = function () {
                 clearInterval(m), (m = null);
             });
     }),
+
     (SPLODER.BipedFace = function () {
         var e,
             t,
@@ -2064,6 +2082,7 @@ var $$ = function () {
                 },
             });
     }),
+
     (SPLODER.BipedItem = function () {
         var e, t, i, s;
         (this.initWithRectAndMaterial = function (e, o, n) {
@@ -2090,6 +2109,7 @@ var $$ = function () {
                 },
             });
     }),
+
     (SPLODER.Biped = function () {
         var e, t, i, s, o, n, a, r, h, l, E, d, R, P, c, u, O, L, S, T, D, m, f, p, g, y, I, w, v, _, M, A, N, x, Y, C, b, V, U;
         (this.poses = null),
@@ -2629,6 +2649,7 @@ var $$ = function () {
             (e.defaultsByType[e.TYPE_BIPED][t.PROPERTY_ITEMFRAME_RIGHT] = -1),
             (e.defaultsByType[e.TYPE_BIPED][t.PROPERTY_ITEMFRAME_LEFT] = -1);
     })(SPLODER.Item, SPLODER.Biped),
+
     (SPLODER.ImageMap = function () {
         var e = 0;
         (this.canvas = null), (this.context = null);
@@ -2687,6 +2708,7 @@ var $$ = function () {
                 T > O && console.log("WARNING: All lights could not fit into space"), d.putImageData(L, 0, 0);
             });
     }),
+
     (SPLODER.Store = function () {
         (this.id = 0),
             (this.items = null),
@@ -2849,6 +2871,7 @@ var $$ = function () {
         }
     }),
     (SPLODER.Store.LIGHT_COLOR_CHOICES = [16777215, 16764057, 16750950, 16724736, 16711935, 10040319, 13311, 52479, 65280]),
+
     (SPLODER.GameStore = function () {
         SPLODER.Store.call(this);
         var e = 0;
@@ -2872,6 +2895,7 @@ var $$ = function () {
     }),
     (SPLODER.GameStore.prototype = Object.create(SPLODER.Store.prototype)),
     (SPLODER.GameStore.prototype.constructor = SPLODER.GameStore),
+
     (SPLODER.Levels = function () {
         (this.id = null), (this.changed = null), (this.bookmarked = null);
         var e = null,
@@ -2971,6 +2995,7 @@ var $$ = function () {
             }
         };
     }),
+
     (SPLODER.EnvModel = function () {
         (this.id = null), (this.changed = null), (this.bookmarked = null);
         var e = null,
@@ -3040,6 +3065,7 @@ var $$ = function () {
     }),
     (SPLODER.EnvModel.ENVIRONMENT = -10),
     (SPLODER.EnvModel.PROPERTY_SKY_COLOR = 0),
+
     (SPLODER.ModelHistory = function () {
         var e = null,
             t = null,
@@ -3171,6 +3197,7 @@ var $$ = function () {
                 }
             });
     }),
+
     (SPLODER.FlowNode = function (e, t, i, s, o) {
         SPLODER.Rect.call(this, e, t, i, s, o), (this.flowId = 0), (this.verb = ""), (this.target = ""), (this.amount = 0), (this.operator = "");
         var n = [];
@@ -3416,6 +3443,7 @@ var $$ = function () {
             (e.defaultsByType[e.TYPE_LOOP][e.PROPERTY_TARGET_TYPE] = SPLODER.FlowNode.TARGET_TYPE_NUMBER),
             (e.defaultsByType[e.TYPE_LOOP][e.PROPERTY_TARGET] = 0);
     })(SPLODER.FlowNode),
+
     (SPLODER.FlowStore = function () {
         SPLODER.Store.call(this);
         var e = this,
@@ -3598,6 +3626,7 @@ var $$ = function () {
             SPLODER.FlowStore.remapNodeConnections(s, o);
         }
     }),
+
     (SPLODER.TagModel = function () {
         (this.id = null), (this.changed = null), (this.bookmarked = null);
         var e = [],
@@ -3659,6 +3688,7 @@ var $$ = function () {
             }
         };
     }),
+
     (SPLODER.GamePhysics = {}),
     (SPLODER.GamePhysics.bufferA = []),
     (SPLODER.GamePhysics.rayCast2d = function (e, t, i, s, o, n) {
@@ -3883,6 +3913,7 @@ var $$ = function () {
         var m = { x: 0 / 0, y: r.y, z: 0 / 0 };
         return Math.abs(E.x - d.x) > 1.5 || Math.abs(E.y - d.y) > 1.5 ? (console.log("POP POP!", d.x, c, E.x, i.x / 32), (m.x = i.x), (m.y = i.y), (m.z = i.z), m) : (E.x != d.x && (m.x = 32 * E.x), E.y != d.y && (m.z = 32 * E.y), m);
     }),
+
     (SPLODER.Simple2dGL = function () {
         var e, t, i, s, o, n, a, r;
         (this.init = function () {
@@ -3966,6 +3997,7 @@ var $$ = function () {
         "gl_FragColor = texture2D(uSampler, vTextureCoord);",
         "}",
     ]),
+
     (SPLODER.LightMap = function () {
         var e, t, i, s;
         this.init = function () {
@@ -4050,6 +4082,7 @@ var $$ = function () {
                 },
             });
     }),
+
     (SPLODER.ShaderLightMap = function () {
         var e, t, i, s, o, n, a;
         this.init = function () {
@@ -4124,6 +4157,7 @@ var $$ = function () {
                 },
             });
     }),
+
     (SPLODER.SceneModel = function () {
         (this.model = null),
             (this.shapes = null),
@@ -4658,84 +4692,7 @@ var $$ = function () {
     (SPLODER.SceneModel.prototype.onError = function (e) {
         console.log("Triangulation error in rect", e.id);
     });
-var Stats = function () {
-    var e = Date.now(),
-        t = e,
-        i = 0,
-        s = 1 / 0,
-        o = 0,
-        n = 0,
-        a = 1 / 0,
-        r = 0,
-        h = 0,
-        l = 0,
-        E = document.createElement("div");
-    (E.id = "stats"),
-        E.addEventListener(
-            "mousedown",
-            function (e) {
-                e.preventDefault(), S(++l % 2);
-            },
-            !1
-        ),
-        (E.style.cssText = "width:80px;opacity:0.9;cursor:pointer");
-    var d = document.createElement("div");
-    (d.id = "fps"), (d.style.cssText = "padding:0 0 3px 3px;text-align:left;background-color:#002"), E.appendChild(d);
-    var R = document.createElement("div");
-    (R.id = "fpsText"), (R.style.cssText = "color:#0ff;font-family:Helvetica,Arial,sans-serif;font-size:9px;font-weight:bold;line-height:15px"), (R.innerHTML = "FPS"), d.appendChild(R);
-    var P = document.createElement("div");
-    for (P.id = "fpsGraph", P.style.cssText = "position:relative;width:74px;height:30px;background-color:#0ff", d.appendChild(P); 74 > P.children.length;) {
-        var c = document.createElement("span");
-        (c.style.cssText = "width:1px;height:30px;float:left;background-color:#113"), P.appendChild(c);
-    }
-    var u = document.createElement("div");
-    (u.id = "ms"), (u.style.cssText = "padding:0 0 3px 3px;text-align:left;background-color:#020;display:none"), E.appendChild(u);
-    var O = document.createElement("div");
-    (O.id = "msText"), (O.style.cssText = "color:#0f0;font-family:Helvetica,Arial,sans-serif;font-size:9px;font-weight:bold;line-height:15px"), (O.innerHTML = "MS"), u.appendChild(O);
-    var L = document.createElement("div");
-    for (L.id = "msGraph", L.style.cssText = "position:relative;width:74px;height:30px;background-color:#0f0", u.appendChild(L); 74 > L.children.length;)
-        (c = document.createElement("span")), (c.style.cssText = "width:1px;height:30px;float:left;background-color:#131"), L.appendChild(c);
-    var S = function (e) {
-        switch ((l = e)) {
-            case 0:
-                (d.style.display = "block"), (u.style.display = "none");
-                break;
-            case 1:
-                (d.style.display = "none"), (u.style.display = "block");
-        }
-    };
-    return {
-        REVISION: 12,
-        domElement: E,
-        setMode: S,
-        begin: function () {
-            e = Date.now();
-        },
-        end: function () {
-            var l = Date.now();
-            (i = l - e), (s = Math.min(s, i)), (o = Math.max(o, i)), (O.textContent = i + " MS (" + s + "-" + o + ")");
-            var E = Math.min(30, 30 - 30 * (i / 200));
-            return (
-                (L.appendChild(L.firstChild).style.height = E + "px"),
-                h++,
-                l > t + 1e3 &&
-                ((n = Math.round((1e3 * h) / (l - t))),
-                    (a = Math.min(a, n)),
-                    (r = Math.max(r, n)),
-                    (R.textContent = n + " FPS (" + a + "-" + r + ")"),
-                    (E = Math.min(30, 30 - 30 * (n / 100))),
-                    (P.appendChild(P.firstChild).style.height = E + "px"),
-                    (t = l),
-                    (h = 0)),
-                l
-            );
-        },
-        update: function () {
-            e = this.end();
-        },
-    };
-};
-"object" == typeof module && (module.exports = Stats),
+
     (SPLODER.GameCamera = function (e, t, i, s) {
         THREE.PerspectiveCamera.call(this, e, t, i, s), (this.easeFactor = 0.1);
         var o = 1;
@@ -4840,6 +4797,7 @@ var Stats = function () {
     }),
     (SPLODER.GameCamera.prototype = Object.create(THREE.PerspectiveCamera.prototype)),
     (SPLODER.GameCamera.prototype.constructor = SPLODER.GameCamera),
+
     (SPLODER.GameCameraControls = function () {
         (this.camera = null),
             (this.model = null),
@@ -5165,6 +5123,7 @@ var Stats = function () {
                     this.camera.lookAt(e);
             });
     }),
+
     (SPLODER.Broadcaster = function () {
         this.hasOwnProperty("_listeners") || (this._listeners = []),
             this.hasOwnProperty("_callbacks") || (this._callbacks = []),
@@ -5225,6 +5184,7 @@ var Stats = function () {
                 this.broadcast("touchendoutside", e);
             });
     }),
+
     (SPLODER.GameView = function () {
         (this.domElement = null),
             (this.renderer = null),
@@ -5417,6 +5377,7 @@ var Stats = function () {
     (SPLODER.GameView.prototype.render = function (e) {
         e.render(this.sceneModel.scene, this.camera), (this.isDirty = !1);
     }),
+
     (SPLODER.Game = function () {
         SPLODER.Broadcaster.call(this),
             (this.model = null),
@@ -5594,6 +5555,7 @@ var Stats = function () {
             }
         }
     });
+
 var perimSegments,
     holeSegments,
     game = new SPLODER.Game();
