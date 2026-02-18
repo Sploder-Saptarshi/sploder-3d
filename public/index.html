@@ -1,0 +1,2500 @@
+<!doctype html>
+<html class="no-js" lang="">
+<head>
+    <meta charset="utf-8">
+    <meta name="description" content="">
+    <!--<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Sploder World Engine Tech Demo</title>
+
+    <link rel="image_src" href="thumbnail.png" />
+    <meta name="thumbnail" content="thumbnail.png" />
+
+    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+
+    
+
+    <link rel="stylesheet" href="styles/main.css">
+
+    <script src="scripts/vendor/modernizr.js"></script>
+</head>
+<body>
+<!--[if lt IE 10]>
+<p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade
+    your browser</a> to improve your experience.</p>
+<![endif]-->
+
+<script id="assets_manifest" type="application/json">
+
+    {
+    "types": [
+        "walls",
+        "liquids",
+        "panels",
+        "skies",
+        "items",
+        "bipeds",
+        "liquidmask"
+    ],
+    "atlases": [
+        "images/textures-tiles.json",
+        "images/textures-liquids.json",
+        "images/textures-items.json",
+        "",
+        "images/textures-items.json",
+        "images/textures-bipeds.json",
+        ""
+    ],
+    "maps": [
+        {
+            "src": "images/textures-tiles.png",
+            "wrapS": 1000,
+            "wrapT": 1000,
+            "magFilter": 1003,
+            "minFilter": 1003,
+            "repeat": true
+        },
+        {
+            "src": "images/textures-liquids.png",
+            "wrapS": 1000,
+            "wrapT": 1000,
+            "magFilter": 1003,
+            "minFilter": 1003,
+            "repeat": true
+        },
+        {
+            "src": "images/textures-items.png",
+            "wrapS": 1000,
+            "wrapT": 1000,
+            "magFilter": 1003,
+            "minFilter": 1003,
+            "repeat": false
+        },
+        {
+            "src": "images/sky.png",
+            "wrapS": 1000,
+            "wrapT": 1002,
+            "magFilter": 1003,
+            "minFilter": 1003
+        },
+        {
+            "src": "images/textures-items.png",
+            "wrapS": 1000,
+            "wrapT": 1000,
+            "magFilter": 1003,
+            "minFilter": 1003,
+            "repeat": false
+        },
+        {
+            "src": "images/textures-bipeds.png",
+            "wrapS": 1000,
+            "wrapT": 1000,
+            "magFilter": 1003,
+            "minFilter": 1003,
+            "repeat": false
+        },
+        null
+    ],
+    "materials": [
+        "shader",
+        "shader",
+        "shader",
+        "shader",
+        "shader",
+        "shader",
+        "basic"
+    ],
+    "side": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        0,
+        0
+    ],
+    "colors": [
+        2,
+        0,
+        2,
+        0,
+        2,
+        2,
+        0
+    ],
+    "transparent": [
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        true
+    ],
+    "depth": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false
+    ],
+    "globalUniformsKeys": [
+        "time",
+        "lightMap",
+        "lightMapSize",
+        "cameraAngle",
+        "pixelRatio",
+        "lights"
+    ],
+    "uniformsKeys": {
+        "walls": [
+            "time",
+            "lightMap",
+            "lightMapSize",
+            "selected",
+            "textureSet",
+            "frames",
+            "ceiling"
+        ],
+        "liquids": [
+            "time",
+            "lightMap",
+            "lightMapSize",
+            "selected",
+            "textureSet",
+            "ceiling"
+        ],
+        "panels": [
+            "time",
+            "lightMap",
+            "lightMapSize",
+            "selected",
+            "textureSet",
+            "frames",
+            "nofollow"
+        ],
+        "skies": [
+            "time",
+            "selected",
+            "pixelRatio",
+            "cameraAngle"
+        ],
+        "items": [
+            "time",
+            "lightMap",
+            "lightMapSize",
+            "selected",
+            "textureSet",
+            "frames",
+            "nofollow"
+        ],
+        "bipeds": [
+            "time",
+            "lightMap",
+            "lightMapSize",
+            "selected",
+            "textureSet",
+            "frames",
+            "noOverlap"
+        ],
+        "liquidmask": [
+        ]
+    }
+}
+
+
+</script>
+
+
+<script id="vertexShader_walls" type="x-shader/x-vertex">
+
+        
+uniform float time;
+varying vec2 vUv;
+varying vec3 vColor;
+varying vec3 vecPos;
+varying vec4 vecPosAbs;
+varying vec4 vecPosExt;
+varying vec3 norm;
+varying float objScale;
+
+varying float fragDepth;
+
+void main() {
+
+    vUv = uv;
+    vColor = color;
+
+    vec4 pos = vec4(position, 1.0);
+
+    objScale = modelMatrix[2][2] > 0.0 ? 1.0 : -1.0;
+
+    gl_Position =   projectionMatrix *
+                    modelViewMatrix *
+                    pos;
+
+    vec4 sector_intrude = vec4(normal.xzy, 1.0);
+
+    vecPosAbs = modelMatrix * pos;
+    vecPosExt = vecPosAbs + sector_intrude * 16.0;
+    norm = normal;
+    vecPos = position;
+
+    vec3 n = normalize( normalMatrix * normal );
+
+    fragDepth = (gl_Position.w - gl_Position.y + cameraPosition.y);// * (0.5 + n.z * 0.5);
+    fragDepth -= 400.0 * n.z;
+}
+
+
+
+</script>
+
+<script id="fragmentShader_walls" type="x-shader/x-fragment">
+
+        
+uniform float time;
+
+uniform sampler2D textureMap;
+uniform float textureSet[3];
+uniform float frames[12];
+uniform vec2 textureMapSize;
+
+uniform sampler2D lightMap;
+uniform vec4 lightMapSize;
+
+uniform int selected;
+uniform int ceiling;
+
+uniform vec3 fogColor;
+uniform float fogNear;
+uniform float fogFar;
+
+varying vec2 vUv;
+varying vec3 vColor;
+varying vec3 vecPos;
+varying vec4 vecPosAbs;
+varying vec4 vecPosExt;
+varying vec3 norm;
+varying float objScale;
+
+varying float fragDepth;
+
+float rand(float seed){
+    return fract(sin(dot(vec2(seed, seed * 0.5) ,vec2(12.9898,78.233))) * 43758.5453);
+}
+
+float rand2(vec2 co){
+    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+}
+
+float calc_circle(float n, vec2 xy, vec2 offset)
+{
+	vec2 ixy = floor(xy) - offset;
+	vec2 centre = ixy + 0.5;
+
+	float r = 0.05 + 0.2 * rand2(ixy+100.0);
+	centre += 0.25 + 0.5 * rand2(ixy);
+
+	float angle = rand2(ixy + 50.0) + sin(time * 3.14159) * (rand2(ixy + 150.0) - 0.5);
+	centre.x += 0.25 * sin(angle);
+	centre.y += 0.25 * cos(angle);
+
+	vec2 d = xy - centre;
+	float hsq = d.x * d.x + d.y * d.y;
+
+	return n + 1.0 - smoothstep(r, r + 0.01, hsq);
+}
+
+float dapple()
+{
+	vec2 uv = vecPosAbs.xz * 0.01;
+	float aspect = 1.0;
+	float dappleTime = sin(time * 3.14159 * 0.25) * 0.25;
+	float dappleTime2 = cos(time * 3.14159 * 0.25) * 0.25;
+
+	uv.x += dappleTime;
+	uv.y += dappleTime2;
+
+	float n = 0.0;
+
+	n = calc_circle(n, uv, vec2(0.0, 0.0));
+	n = calc_circle(n, uv, vec2(0.0, 1.0));
+	n = calc_circle(n, uv, vec2(1.0, 0.0));
+	n = calc_circle(n, uv, vec2(1.0, 1.0));
+
+	uv = vecPosAbs.xz * 0.005;
+
+	uv.x += dappleTime2 * 0.5;
+	uv.y += dappleTime * 0.5;
+
+	n = calc_circle(n, uv, vec2(0.0, 0.0));
+	n = calc_circle(n, uv, vec2(0.0, 1.0));
+	n = calc_circle(n, uv, vec2(1.0, 0.0));
+	n = calc_circle(n, uv, vec2(1.0, 1.0));
+
+	uv = vecPosAbs.xz * 0.0025;
+
+	uv.x -= dappleTime * 0.25;
+	uv.y -= dappleTime2 * 0.25;
+
+	n = calc_circle(n, uv, vec2(0.0, 0.0));
+	n = calc_circle(n, uv, vec2(0.0, 1.0));
+	n = calc_circle(n, uv, vec2(1.0, 0.0));
+	n = calc_circle(n, uv, vec2(1.0, 1.0));
+
+	return n * 0.125;
+
+}
+
+
+vec4 texture2D_bilinear(in sampler2D t, in vec2 uv, in vec2 textureSize, in vec2 texelSize)
+{
+    vec2 f = fract( uv * textureSize );
+    //uv += texelSize*0.06;    // <--- precision hack (anything higher breaks it);
+    vec4 tl = texture2D(t, uv);
+    vec4 tr = texture2D(t, uv + vec2(texelSize.x, 0.0));
+    vec4 bl = texture2D(t, uv + vec2(0.0, texelSize.y));
+    vec4 br = texture2D(t, uv + vec2(texelSize.x, texelSize.y));
+    vec4 tA = mix( tl, tr, f.x );
+    vec4 tB = mix( bl, br, f.x );
+    return mix( tA, tB, f.y );
+}
+
+void main() {
+
+    /*
+    if (vecPosExt.y < 0.0 ||vecPosExt.y > 2048.0) {
+        discard;
+        return;
+    }
+    */
+
+    float mw = textureMapSize.x;
+    float mh = textureMapSize.y;
+
+    vec2 nsc = vUv * 1.0;// * 0.03125 * 0.5;
+    vec2 nsc2;
+    vec2 nsc3;
+
+    nsc.x /= 4.0;
+    nsc.y /= 4.0;
+
+    // flip textures for ceilings;
+    nsc.y *= objScale;
+
+    float textureId;
+    float tx;
+    float ty;
+    float tw;
+    float th;
+
+    if (norm.z == 0.0 && vecPos.z < float(frames[11]) * 4.0) {
+
+        textureId = textureSet[2];
+        tx = frames[8];
+        ty = mh - frames[9];
+        tw = frames[10];
+        th = frames[11];
+
+    } else if (norm.z != 0.0) {
+
+        textureId = textureSet[0];
+        tx = frames[0];
+        ty = mh - frames[1];
+        tw = frames[2];
+        th = frames[3];
+
+    } else {
+
+        textureId = textureSet[1];
+        tx = frames[4];
+        ty = mh - frames[5];
+        tw = frames[6];
+        th = frames[7];
+        nsc.y += float(frames[11]);
+
+    }
+
+    ty -= th;
+
+    if (norm.z > 0.0 || norm.x < 0.0 || norm.y > 0.0) {
+        nsc.x -= 0.0;
+    } else {
+        nsc.x = 1.0 - nsc.x;
+    }
+
+    // wiggly heat for lava;
+
+    if (vColor.r > 0.0 && ceiling != 1 && vColor.r * 1.0 >= vecPosAbs.y * 0.0625 && vColor.g * 1.0 > 1.9) {
+
+        float lavaTime = time * 3.14159 * 0.5;
+
+        nsc.y += sin(lavaTime + nsc.y * 0.5 + vecPos.x * 0.1 - vecPos.y * 0.1) * 0.5;
+        nsc.x += cos(lavaTime + nsc.x * 0.5 + vecPos.z * 0.1) * 0.5;
+
+    }
+
+    // offset coords for antialiasing;
+
+    float depth = gl_FragCoord.z / gl_FragCoord.w;
+
+    nsc2 = nsc + 0.2 * (depth - 256.0) / 256.0;
+    nsc3 = nsc - 0.2 * (depth - 256.0) / 256.0;
+
+
+    // crop in tile to remove artifacts;
+
+    nsc.x = 0.01 + mod(nsc.x, tw - 0.02);
+    nsc.y = 0.01 + mod(nsc.y, th - 0.02);
+
+    nsc.x += tx;
+    nsc.y += ty;
+
+    nsc.x /= mw;
+    nsc.y /= mh;
+
+    //;
+
+    nsc2.x = 0.01 + mod(nsc2.x, tw - 0.02);
+    nsc2.y = 0.01 + mod(nsc2.y, th - 0.02);
+
+    nsc2.x += tx;
+    nsc2.y += ty;
+
+    nsc2.x /= mw;
+    nsc2.y /= mh;
+
+    //;
+
+    nsc3.x = 0.01 + mod(nsc3.x, tw - 0.02);
+    nsc3.y = 0.01 + mod(nsc3.y, th - 0.02);
+
+    nsc3.x += tx;
+    nsc3.y += ty;
+
+    nsc3.x /= mw;
+    nsc3.y /= mh;
+
+
+    // normal-based global lighting;
+
+    float dim = 1.0;
+
+    if (norm.x != 0.0) {
+       dim = 0.5;
+    } else if (norm.y != 0.0) {
+       dim = 0.75;
+    } else if (ceiling > 0 || norm.z > 0.0) {
+       dim = 0.35;
+    }
+
+
+    // light maps overlay;
+
+    float tileX = floor(vecPosExt.x) * 0.03125 - lightMapSize.x;
+    float tileY = floor(vecPosExt.z) * 0.03125 - lightMapSize.y;
+
+    tileX /= lightMapSize.z;
+    tileY /= lightMapSize.w;
+
+    vec2 tCoord = vec2(tileX, 1.0 - tileY);
+
+    float sectorLighting = texture2D(lightMap, tCoord).a;
+
+    // special sector lighting effects;
+
+    float flash = mod(time, 2.0);
+
+    float lightingEffect = mod(sectorLighting * 255.0, 10.0);
+
+    if (sectorLighting == 0.0) {
+        sectorLighting = 0.65;
+        lightingEffect = 0.0;
+    }
+
+    if (lightingEffect < 0.5) {
+
+    } else if (lightingEffect < 1.5) {
+
+        sectorLighting = rand(floor(time * 8.0) / 8.0) > 0.8 ? sectorLighting + 0.1 : 0.1; // broken ballast A;
+
+    } else if (lightingEffect < 2.5) {
+
+        sectorLighting = rand(floor(2.9 + time * 8.0) / 8.0) > 0.8 ? sectorLighting + 0.1 : 0.1; // broken ballast B;
+
+    } else if (lightingEffect < 3.5) {
+
+        sectorLighting = mod(time, 0.25) > 0.15 ? sectorLighting - 0.01 : sectorLighting + 0.01; // torch flicker;
+
+    } else if (lightingEffect < 4.5) {
+
+        sectorLighting = flash < 0.667 ? sectorLighting + 0.1 : 0.1; // flashing light A;
+
+    } else if (lightingEffect < 5.5) {
+
+        sectorLighting = flash > 0.667 && flash < 1.333 ? sectorLighting + 0.1 : 0.1; // flashing light B;
+
+    } else if (lightingEffect < 6.5) {
+
+        sectorLighting = flash > 1.333 ? sectorLighting + 0.1 : 0.1; // flashing light C;
+
+    } else if (lightingEffect < 7.5) {
+
+        sectorLighting += dapple() * max(0.25, sectorLighting); // dappled light;
+
+    } else if (lightingEffect < 8.5) {
+
+        sectorLighting = sectorLighting + sin(time * 3.14159) * 0.25; // pulsing light;
+
+    }
+
+    sectorLighting = clamp(sectorLighting, 0.0, 1.0);
+
+    vec3 lightLevel = vec3(1.0, 1.0, 1.0);
+    vec3 lightingColor = texture2D_bilinear(lightMap, tCoord, lightMapSize.zw, vec2(1.0 / lightMapSize.z, 1.0 / lightMapSize.w)).rgb;
+
+
+    lightLevel *= sectorLighting;
+    //lightLevel += texture2D(lightMap, tCoord).rgb;
+    lightLevel += lightingColor;
+
+
+    vec4 textureColor;
+
+    // antialias far away floors to reduce artifacts;
+
+    if (depth < 384.0 || norm.z == 0.0) {
+        textureColor = texture2D(textureMap, nsc);
+    } else {
+        textureColor = (texture2D(textureMap, nsc) + texture2D(textureMap, nsc2) + texture2D(textureMap, nsc3)) * 0.33333;
+    }
+
+    // liquid mask;
+
+    if (vColor.r > 0.0 && ceiling != 1) {
+
+        float liquidLevel = vColor.r * 1.0;
+        float vecPosLevel = vecPosAbs.y * 0.0625;
+
+        if (liquidLevel >= vecPosLevel - 1.0) {
+
+            float liquidType = vColor.g * 1.0;
+            float pieTime = time * 3.14159 * 0.5;
+
+            vec4 vv = vecPosAbs * 0.5;
+            vv.x = floor(vv.x / 2.0) * 2.0;
+
+            float tmp = vv.x;
+            float tmp2 = vv.z;
+
+            vv.z += min(16.0, max( -16.0, cos(cos(tmp * 0.1 + (pieTime + 10.0))) * 16.0 ));
+            float col = floor((sin(vv.x * 0.25) * 0.25 + cos(vv.z * 0.25) * 0.25 + cos(vv.y * 0.25) * 0.25 + 0.25) * 10.0) / 8.0;
+
+            vec4 liquidTint;
+            vec4 noTint = vec4(1.0, 1.0, 1.0, 1.0);
+            float glowAmount = mix(0.0, 1.0, max(0.0, min((liquidLevel - vecPosLevel) + 1.0, 1.0)));
+
+            if (liquidType >= 1.9) {
+                if (liquidLevel >= vecPosLevel - 1.0) {
+                    liquidTint = vec4(1.5, 0.5, 0.0, 1.0);
+                    glowAmount *= 0.75;
+                }
+            } else if (liquidType >= 0.9) {
+                if (liquidLevel >= vecPosLevel - 1.0) {
+                    liquidTint = vec4(0.0, 1.5, 0.5, 1.0);
+                    glowAmount *= 0.25;
+                }
+            } else {
+
+                if (liquidLevel >= vecPosLevel - 1.0) {
+
+                    liquidTint = vec4(0.0, 0.5, 1.0, 1.0);
+                    if (liquidLevel < vecPosLevel) {
+                        liquidTint *= 0.0;
+                        liquidTint += 1.5 * sectorLighting;
+                        liquidTint = max(textureColor, liquidTint);
+                    }
+
+                    col -= cos(vv.z * 0.25 + pieTime);
+                    if (col > 0.5) col = 0.5 - col;
+                    col += 1.0;
+                    col = max(0.0, col);
+                    col *= 0.25 + abs(mod(tmp * 0.05 + tmp2 * 0.05, 1.0) - 0.5);
+                    col = max(0.25, col);
+                    glowAmount *= col;
+
+                }
+
+            }
+
+            textureColor *= mix(liquidTint, noTint, max(0.0, min(vecPosLevel - liquidLevel, 1.0)));
+            lightLevel += glowAmount;
+
+        }
+
+    }
+
+
+
+    // apply final color before fogging;
+
+    gl_FragColor = textureColor * clamp(vec4(lightLevel, 1.0) * dim * 2.0, 0.0, 2.0);
+
+    // fake ambient occlusion
+
+    //gl_FragColor *= 0.0;
+    //gl_FragColor += 0.5;
+
+    gl_FragColor *= max(0.75, min(12.0, max(0.0, (3200.0 - fragDepth)) * 0.0006));// * norm.z * objScale;
+
+    // fog horn;
+
+
+    // if (depth < 250.0) gl_FragColor -= (250.0 - depth) * 0.002;
+
+    float fogFactor = smoothstep( fogNear, fogFar, depth );
+
+    gl_FragColor = mix( gl_FragColor, vec4( fogColor, gl_FragColor.w ), fogFactor );
+
+    if (selected == 1) {
+        gl_FragColor += 0.0625 + sin(time / 0.125) * 0.0625 * 0.5;
+        if (vecPos.z > 0.0 && vecPos.z < 4.0) {
+            gl_FragColor += 0.25;
+        }
+    }
+
+}
+
+
+
+</script>
+
+
+<script id="vertexShader_liquids" type="x-shader/x-vertex">
+
+        
+    uniform float time;
+    varying vec2 vUv;
+    varying vec4 vecPos;
+
+    void main() {
+        vUv = uv;
+
+        vec4 pos = vec4(position, 1.0);
+
+        //pos.z += sin(time + pos.x) * 64.0;
+
+        gl_Position =   projectionMatrix *
+                        modelViewMatrix *
+                        pos;
+
+        vecPos = modelMatrix * pos;
+
+    }
+
+
+
+</script>
+
+
+<script id="fragmentShader_liquids" type="x-shader/x-fragment">
+
+        
+uniform float time;
+uniform float textureSet[3];
+
+uniform sampler2D lightMap;
+uniform vec4 lightMapSize;
+
+uniform int selected;
+
+uniform vec3 fogColor;
+uniform float fogNear;
+uniform float fogFar;
+
+varying vec2 vUv;
+varying vec4 vecPos;
+
+float rand(float seed){
+    return fract(sin(dot(vec2(seed, seed * 0.5) ,vec2(12.9898,78.233))) * 43758.5453);
+}
+
+
+float rand2(vec2 co){
+    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+}
+
+float calc_circle(float n, vec2 xy, vec2 offset)
+{
+	vec2 ixy = floor(xy) - offset;
+	vec2 centre = ixy + 0.5;
+
+	float r = 0.05 + 0.2 * rand2(ixy+100.0);
+	centre += 0.25 + 0.5 * rand2(ixy);
+
+	float angle = rand2(ixy + 50.0) + sin(time * 3.14159) * (rand2(ixy + 150.0) - 0.5);
+	centre.x += 0.25 * sin(angle);
+	centre.y += 0.25 * cos(angle);
+
+	vec2 d = xy - centre;
+	float hsq = d.x * d.x + d.y * d.y;
+
+	return n + 1.0 - smoothstep(r, r + 0.01, hsq);
+}
+
+
+float dapple()
+{
+	vec2 uv = vecPos.xz * 0.01;
+	float aspect = 1.0;
+	float dappleTime = sin(time * 3.14159 * 0.25) * 0.25;
+	float dappleTime2 = cos(time * 3.14159 * 0.25) * 0.25;
+
+	uv.x += dappleTime;
+	uv.y += dappleTime2;
+
+	float n = 0.0;
+
+	n = calc_circle(n, uv, vec2(0.0, 0.0));
+	n = calc_circle(n, uv, vec2(0.0, 1.0));
+	n = calc_circle(n, uv, vec2(1.0, 0.0));
+	n = calc_circle(n, uv, vec2(1.0, 1.0));
+
+	uv = vecPos.xz * 0.005;
+
+	uv.x += dappleTime2 * 0.5;
+	uv.y += dappleTime * 0.5;
+
+	n = calc_circle(n, uv, vec2(0.0, 0.0));
+	n = calc_circle(n, uv, vec2(0.0, 1.0));
+	n = calc_circle(n, uv, vec2(1.0, 0.0));
+	n = calc_circle(n, uv, vec2(1.0, 1.0));
+
+	uv = vecPos.xz * 0.0025;
+
+	uv.x -= dappleTime * 0.25;
+	uv.y -= dappleTime2 * 0.25;
+
+	n = calc_circle(n, uv, vec2(0.0, 0.0));
+	n = calc_circle(n, uv, vec2(0.0, 1.0));
+	n = calc_circle(n, uv, vec2(1.0, 0.0));
+	n = calc_circle(n, uv, vec2(1.0, 1.0));
+
+	return n * 0.125;
+
+}
+
+vec4 texture2D_bilinear(in sampler2D t, in vec2 uv, in vec2 textureSize, in vec2 texelSize)
+{
+    vec2 f = fract( uv * textureSize );
+    //uv += texelSize*0.06;    // <--- precision hack (anything higher breaks it);
+    vec4 tl = texture2D(t, uv);
+    vec4 tr = texture2D(t, uv + vec2(texelSize.x, 0.0));
+    vec4 bl = texture2D(t, uv + vec2(0.0, texelSize.y));
+    vec4 br = texture2D(t, uv + vec2(texelSize.x, texelSize.y));
+    vec4 tA = mix( tl, tr, f.x );
+    vec4 tB = mix( bl, br, f.x );
+    return mix( tA, tB, f.y );
+}
+
+void main() {
+
+    // gl_FragColor = texture2D(textureMap, vUv);
+
+    vec2 nsc = vUv;
+
+
+    // light maps overlay;
+
+    float tileX = floor(vecPos.x) * 0.03125 - lightMapSize.x;
+    float tileY = floor(vecPos.z) * 0.03125 - lightMapSize.y;
+
+    tileX /= lightMapSize.z;
+    tileY /= lightMapSize.w;
+    vec2 tCoord = vec2(tileX, 1.0 - tileY);
+
+    float sectorLighting = texture2D(lightMap, tCoord).a;
+
+    // special sector lighting effects;
+
+    float flash = mod(time, 2.0);
+
+    float lightingEffect = mod(sectorLighting * 255.0, 10.0);
+
+    if (sectorLighting == 0.0) {
+        sectorLighting = 0.65;
+        lightingEffect = 0.0;
+    }
+
+    if (lightingEffect < 0.5) {
+
+    } else if (lightingEffect < 1.5) {
+
+        sectorLighting = rand(floor(time * 8.0) / 8.0) > 0.8 ? sectorLighting + 0.1 : 0.1; // broken ballast A;
+
+    } else if (lightingEffect < 2.5) {
+
+        sectorLighting = rand(floor(2.9 + time * 8.0) / 8.0) > 0.8 ? sectorLighting + 0.1 : 0.1; // broken ballast B;
+
+    } else if (lightingEffect < 3.5) {
+
+        sectorLighting = mod(time, 0.25) > 0.15 ? sectorLighting - 0.01 : sectorLighting + 0.01; // torch flicker;
+
+    } else if (lightingEffect < 4.5) {
+
+        sectorLighting = flash < 0.667 ? sectorLighting + 0.1 : 0.1; // flashing light A;
+
+    } else if (lightingEffect < 5.5) {
+
+        sectorLighting = flash > 0.667 && flash < 1.333 ? sectorLighting + 0.1 : 0.1; // flashing light B;
+
+    } else if (lightingEffect < 6.5) {
+
+        sectorLighting = flash > 1.333 ? sectorLighting + 0.1 : 0.1; // flashing light C;
+
+    } else if (lightingEffect < 7.5) {
+
+        sectorLighting += dapple() * max(0.25, sectorLighting); // dappled light;
+
+    } else if (lightingEffect < 8.5) {
+
+        sectorLighting = sectorLighting + sin(time * 3.14159) * 0.25; // pulsing light;
+
+    }
+
+    sectorLighting = clamp(sectorLighting, 0.0, 1.0);
+
+
+    vec3 lightLevel = vec3(1.0, 1.0, 1.0);
+
+    lightLevel *= sectorLighting;
+    //lightLevel += texture2D(lightMap, tCoord).rgb;
+    lightLevel += texture2D_bilinear(lightMap, tCoord, lightMapSize.zw, vec2(1.0 / lightMapSize.z, 1.0 / lightMapSize.w)).rgb;
+
+    // let's make waves;
+
+    vec4 textureColor;
+
+    vec4 vv = vecPos * 0.5;
+    vv.x = floor(vv.x / 2.0) * 2.0;
+
+    bool lava = textureSet[0] == 2.0;
+    bool acid = textureSet[0] == 1.0;
+
+    float tmp = vv.x;
+    float tmp2 = vv.z;
+
+    float pieTime = time * 3.14159 * 0.5;
+
+    if (lava) {
+
+        pieTime *= 0.5;
+        vv.x += min(16.0, max( -16.0, sin(sin(tmp2 * 0.1 + (pieTime + 10.0))) * 16.0 ));
+
+    }
+
+    vv.z += min(16.0, max( -16.0, cos(cos(tmp * 0.1 + (pieTime + 10.0))) * 16.0 ));
+
+    float col = floor((sin(vv.x * 0.25) * 0.25 + cos(vv.z * 0.25) * 0.25 + 0.25) * 10.0) / 8.0;
+
+    if (lava) {
+
+        lightLevel.g = lightLevel.g = lightLevel.b = 1.0;
+        col += 0.5 * (sin(sin(pieTime) * 2.0 - vecPos.x * 0.01) - cos(sin(pieTime) * 2.0 - vecPos.z * 0.01));
+        col += 0.25;
+        col *= 1.5;
+        textureColor = vec4(0.85 + col * 0.65, col * 0.35 + 0.15, 0.0, 1.0);
+        textureColor.r = max(0.5, textureColor.r);
+        lightLevel.r = max(0.75, lightLevel.r);
+
+    } else if (acid) {
+
+        col = max(-1.0, cos(vv.z * 0.1 - vv.x * 0.1) - sin(vv.x * 0.1 - vv.z * 0.2));
+        col += max(0.0, sin(vv.x * 0.1 - vv.z * 0.2) - cos(vv.z * 0.1 - vv.x * 0.1));
+        if (col > 0.8) col = 1.8 - col;
+
+        textureColor = vec4(col * 0.35 + 0.15, 0.85 + col * 0.65, 0.0, 1.0);
+        lightLevel += col * 0.25;
+        lightLevel.g = max(0.25, lightLevel.g);
+
+    } else {
+
+        lightLevel.b = max(0.25, lightLevel.b);
+        col -= cos(vv.z * 0.25 + pieTime);
+        if (col > 0.5) col = 0.5 - col;
+        col += 1.0;
+        col = max(0.0, col);
+        col *= 0.25 + abs(mod(tmp * 0.05 + tmp2 * 0.05, 1.0) - 0.5);
+        textureColor = vec4(col * 0.15 + 0.15, col * 0.35 + 0.25, 0.5 + col * 0.5, col + 0.5);
+        textureColor = vec4(col * 0.15 + 0.15, col * 0.35 + 0.25, 0.5 + col * 0.5, col + 0.5);
+
+    }
+
+
+    gl_FragColor = textureColor * clamp(vec4(lightLevel, 1.0) * 1.25, 0.0, 1.5);
+
+    float depth = gl_FragCoord.z / gl_FragCoord.w;
+    float fogFactor = smoothstep( fogNear, fogFar, depth );
+
+    gl_FragColor = mix( gl_FragColor, vec4( fogColor, gl_FragColor.w ), fogFactor );
+
+    if (selected == 1) {
+        gl_FragColor += 0.0625 + sin(time / 0.125) * 0.0625 * 2.0;
+    }
+
+}
+
+
+
+
+
+</script>
+
+
+<script id="vertexShader_panels" type="x-shader/x-vertex">
+
+        
+uniform float time;
+uniform int nofollow;
+uniform int spherical;
+
+varying vec2 vUv;
+varying vec3 vColor;
+varying vec4 vecPos;
+varying float lightOffsetX;
+varying float lightOffsetY;
+
+void main() {
+
+    vUv = uv;
+    vColor = color;
+
+    lightOffsetX = lightOffsetY = 0.0;
+
+    vec4 pos = vec4(position, 1.0);
+
+    vecPos = modelMatrix * pos;
+
+    mat4 modelView = modelViewMatrix;
+
+    if (!(nofollow == 1)) {
+
+        modelView[0][0] = 1.0;
+        modelView[0][1] = 0.0;
+        modelView[0][2] = 0.0;
+
+        if (spherical == 1)
+        {
+            modelView[1][0] = 0.0;
+            modelView[1][1] = 1.0;
+            modelView[1][2] = 0.0;
+        }
+
+        modelView[2][0] = 0.0;
+        modelView[2][1] = 0.0;
+        modelView[2][2] = 1.0;
+
+    }
+
+
+    if (nofollow == 1) {
+
+        vec4 sector_intrude = vec4(normal, 1.0) * modelMatrix;
+
+        if (sector_intrude.x == normal.x) {
+
+           if (vecPos.z < cameraPosition.z) {
+               pos.z += 2.0;
+               lightOffsetY = -1.0;
+           } else {
+               pos.z -= 2.0;
+               lightOffsetY = 1.0;
+           }
+
+        } else {
+
+           if (vecPos.x < cameraPosition.x) {
+               pos.z += 2.0;
+               lightOffsetX = 1.0;
+           } else {
+               pos.z -= 2.0;
+               lightOffsetX = -1.0;
+           }
+
+        }
+
+    }
+
+    gl_Position =   projectionMatrix *
+                    modelView *
+                    pos;
+
+
+}
+
+
+
+</script>
+
+
+<script id="fragmentShader_panels" type="x-shader/x-fragment">
+
+        uniform float time;
+uniform int nofollow;
+
+uniform sampler2D textureMap;
+uniform float textureSet[3];
+uniform float frames[12];
+uniform vec2 textureMapSize;
+
+uniform sampler2D lightMap;
+uniform vec4 lightMapSize;
+
+uniform int selected;
+
+uniform vec3 fogColor;
+uniform float fogNear;
+uniform float fogFar;
+
+varying vec2 vUv;
+varying vec3 vColor;
+varying vec4 vecPos;
+varying float lightOffsetX;
+varying float lightOffsetY;
+
+float rand(float seed){
+    return fract(sin(dot(vec2(seed, seed * 0.5) ,vec2(12.9898,78.233))) * 43758.5453);
+}
+
+
+float rand2(vec2 co){
+    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+}
+
+float calc_circle(float n, vec2 xy, vec2 offset)
+{
+	vec2 ixy = floor(xy) - offset;
+	vec2 centre = ixy + 0.5;
+
+	float r = 0.05 + 0.2 * rand2(ixy+100.0);
+	centre += 0.25 + 0.5 * rand2(ixy);
+
+	float angle = rand2(ixy + 50.0) + sin(time * 3.14159) * (rand2(ixy + 150.0) - 0.5);
+	centre.x += 0.25 * sin(angle);
+	centre.y += 0.25 * cos(angle);
+
+	vec2 d = xy - centre;
+	float hsq = d.x * d.x + d.y * d.y;
+
+	return n + 1.0 - smoothstep(r, r + 0.01, hsq);
+}
+
+float dapple()
+{
+	vec2 uv = vecPos.xz * 0.01;
+	float aspect = 1.0;
+	float dappleTime = sin(time * 3.14159 * 0.25) * 0.25;
+	float dappleTime2 = cos(time * 3.14159 * 0.25) * 0.25;
+
+	uv.x += dappleTime;
+	uv.y += dappleTime2;
+
+	float n = 0.0;
+
+	n = calc_circle(n, uv, vec2(0.0, 0.0));
+	n = calc_circle(n, uv, vec2(0.0, 1.0));
+	n = calc_circle(n, uv, vec2(1.0, 0.0));
+	n = calc_circle(n, uv, vec2(1.0, 1.0));
+
+	uv = vecPos.xz * 0.005;
+
+	uv.x += dappleTime2 * 0.5;
+	uv.y += dappleTime * 0.5;
+
+	n = calc_circle(n, uv, vec2(0.0, 0.0));
+	n = calc_circle(n, uv, vec2(0.0, 1.0));
+	n = calc_circle(n, uv, vec2(1.0, 0.0));
+	n = calc_circle(n, uv, vec2(1.0, 1.0));
+
+	uv = vecPos.xz * 0.0025;
+
+	uv.x -= dappleTime * 0.25;
+	uv.y -= dappleTime2 * 0.25;
+
+	n = calc_circle(n, uv, vec2(0.0, 0.0));
+	n = calc_circle(n, uv, vec2(0.0, 1.0));
+	n = calc_circle(n, uv, vec2(1.0, 0.0));
+	n = calc_circle(n, uv, vec2(1.0, 1.0));
+
+	return n * 0.125;
+
+}
+
+vec4 texture2D_bilinear(in sampler2D t, in vec2 uv, in vec2 textureSize, in vec2 texelSize)
+{
+    vec2 f = fract( uv * textureSize );
+    //uv += texelSize*0.06;    // <--- precision hack (anything higher breaks it);
+    vec4 tl = texture2D(t, uv);
+    vec4 tr = texture2D(t, uv + vec2(texelSize.x, 0.0));
+    vec4 bl = texture2D(t, uv + vec2(0.0, texelSize.y));
+    vec4 br = texture2D(t, uv + vec2(texelSize.x, texelSize.y));
+    vec4 tA = mix( tl, tr, f.x );
+    vec4 tB = mix( bl, br, f.x );
+    return mix( tA, tB, f.y );
+}
+
+vec2 getTextureCoords (int textureNum) {
+
+    vec2 ms = textureMapSize;
+    vec2 ft = vec2(0.0, 0.0);
+    vec2 fs = vec2(0.0, 0.0);
+
+    if (textureNum == 2) {
+
+        ft.x = frames[8];
+        ft.y = frames[9];
+        fs.x = frames[10];
+        fs.y = frames[11];
+
+    } else if (textureNum == 1) {
+
+        ft.x = frames[4];
+        ft.y = frames[5];
+        fs.x = frames[6];
+        fs.y = frames[7];
+
+    } else {
+
+        ft.x = frames[0];
+        ft.y = frames[1];
+        fs.x = frames[2];
+        fs.y = frames[3];
+
+    }
+
+    ft.y = ms.y - ft.y;
+    ft.y -= fs.y;
+
+    fs /= ms;
+    ft /= ms;
+
+    vec2 nsc = vUv;
+
+    nsc *= fs;
+
+    if (!gl_FrontFacing) {
+
+        nsc.x = 1.0 - nsc.x;
+        nsc.x += ft.x + fs.x;
+        nsc.y += ft.y;
+
+    } else {
+
+        nsc += ft;
+
+    }
+
+    return nsc;
+
+}
+
+void main() {
+
+    // gl_FragColor = texture2D(textureMap, vUv);
+
+    vec2 nsc;
+    float ftime = mod(time, 1.0);
+    if (ftime < 0.33) {
+        nsc = getTextureCoords(0);
+    } else if (ftime < 0.67) {
+        nsc = getTextureCoords(1);
+    } else {
+        nsc = getTextureCoords(2);
+    }
+
+
+    vec4 textureColor = texture2D(textureMap, nsc);
+
+
+    if (textureColor.a < 1.0) {
+        textureColor *= 0.75;
+        textureColor.a *= 2.0;
+    }
+
+    if (selected == 1 && (vUv.x < 0.03 || vUv.x > 0.97 || vUv.y < 0.03 || vUv.y > 0.97)) {
+
+        gl_FragColor = vec4(1, 0.95, 0.5, 1);
+        return;
+
+    } else if (textureColor.a < 0.5) {
+
+        discard;
+
+    }
+
+    // light maps overlay;
+
+    float tileX = floor(vecPos.x) * 0.03125 - lightMapSize.x + lightOffsetX;
+    float tileY = floor(vecPos.z) * 0.03125 - lightMapSize.y - lightOffsetY;
+
+    tileX /= lightMapSize.z;
+    tileY /= lightMapSize.w;
+    vec2 tCoord = vec2(tileX, 1.0 - tileY);
+
+    float sectorLighting = texture2D(lightMap, tCoord).a;
+
+    // special sector lighting effects;
+
+    float flash = mod(time, 2.0);
+
+    float lightingEffect = mod(sectorLighting * 255.0, 10.0);
+
+    if (sectorLighting == 0.0) {
+        sectorLighting = 0.65;
+        lightingEffect = 0.0;
+    }
+
+    if (lightingEffect < 0.5) {
+
+    } else if (lightingEffect < 1.5) {
+
+        sectorLighting = rand(floor(time * 8.0) / 8.0) > 0.8 ? sectorLighting + 0.1 : 0.1; // broken ballast A;
+
+    } else if (lightingEffect < 2.5) {
+
+        sectorLighting = rand(floor(2.9 + time * 8.0) / 8.0) > 0.8 ? sectorLighting + 0.1 : 0.1; // broken ballast B;
+
+    } else if (lightingEffect < 3.5) {
+
+        sectorLighting = mod(time, 0.25) > 0.15 ? sectorLighting - 0.01 : sectorLighting + 0.01; // torch flicker;
+
+    } else if (lightingEffect < 4.5) {
+
+        sectorLighting = flash < 0.667 ? sectorLighting + 0.1 : 0.1; // flashing light A;
+
+    } else if (lightingEffect < 5.5) {
+
+        sectorLighting = flash > 0.667 && flash < 1.333 ? sectorLighting + 0.1 : 0.1; // flashing light B;
+
+    } else if (lightingEffect < 6.5) {
+
+        sectorLighting = flash > 1.333 ? sectorLighting + 0.1 : 0.1; // flashing light C;
+
+    } else if (lightingEffect < 7.5) {
+
+        sectorLighting += dapple() * max(0.25, sectorLighting); // dappled light;
+
+    } else if (lightingEffect < 8.5) {
+
+        sectorLighting = sectorLighting + sin(time * 3.14159) * 0.25; // pulsing light;
+
+    }
+
+    sectorLighting = clamp(sectorLighting, 0.0, 1.0);
+
+
+    vec3 lightLevel = vec3(1.0, 1.0, 1.0);
+
+    lightLevel *= sectorLighting;
+    //lightLevel += texture2D(lightMap, tCoord).rgb;
+    lightLevel += texture2D_bilinear(lightMap, tCoord, lightMapSize.zw, vec2(1.0 / lightMapSize.z, 1.0 / lightMapSize.w)).rgb;
+
+
+    if (textureColor.r >= 0.999 || textureColor.g >= 0.999) {
+        lightLevel *= 0.0;
+        lightLevel += 1.0;
+    }
+
+
+
+    // liquid mask;
+
+    if (vColor.r > 0.0) {
+
+        float liquidLevel = vColor.r * 1.0;
+        float vecPosLevel = vecPos.y * 0.0625;
+
+        if (liquidLevel >= vecPosLevel - 1.0) {
+
+            float liquidType = vColor.g * 1.0;
+
+            float pieTime = time * 3.14159 * 0.5;
+            vec4 vv = vecPos * 0.5;
+            vv.x = floor(vv.x / 2.0) * 2.0;
+
+            float tmp = vv.x;
+            float tmp2 = vv.z;
+
+            vv.z += min(16.0, max( -16.0, cos(cos(tmp * 0.1 + (pieTime + 10.0))) * 16.0 ));
+            float col = floor((sin(vv.x * 0.25) * 0.25 + cos(vv.z * 0.25) * 0.25 + cos(vv.y * 0.25) * 0.25 + 0.25) * 10.0) / 8.0;
+
+            vec4 liquidTint;
+            vec4 noTint = vec4(1.0, 1.0, 1.0, 1.0);
+            float glowAmount = mix(0.0, 1.0, max(0.0, min((liquidLevel - vecPosLevel) + 1.0, 1.0)));
+
+            if (liquidType >= 1.9) {
+                if (liquidLevel >= vecPosLevel - 1.0) {
+                    liquidTint = vec4(1.0, 0.5, 0.0, 1.0);
+                    glowAmount *= 0.5;
+                }
+            } else if (liquidType >= 0.9) {
+                if (liquidLevel >= vecPosLevel - 1.0) {
+                    liquidTint = vec4(0.0, 1.5, 0.5, 1.0);
+                    glowAmount *= 0.25;
+                }
+            } else {
+
+                if (liquidLevel >= vecPosLevel - 1.0) {
+
+                    liquidTint = vec4(0.0, 0.5, 1.0, 1.0);
+                    if (liquidLevel < vecPosLevel) {
+                        liquidTint *= 0.0;
+                        liquidTint += 1.5 * sectorLighting;
+                        liquidTint = max(textureColor, liquidTint);
+                    }
+
+                    col -= cos(vv.z * 0.25 + pieTime);
+                    if (col > 0.5) col = 0.5 - col;
+                    col += 1.0;
+                    col = max(0.0, col);
+                    col *= 0.25 + abs(mod(tmp * 0.05 + tmp2 * 0.05, 1.0) - 0.5);
+                    col = max(0.25, col);
+                    glowAmount *= col;
+
+                }
+
+            }
+
+            textureColor *= mix(liquidTint, noTint, max(0.0, min(vecPosLevel - liquidLevel, 1.0)));
+            lightLevel += glowAmount;
+
+        }
+
+    }
+
+
+
+
+    gl_FragColor = textureColor * clamp(vec4(lightLevel, 1.0) * 1.25, 0.0, 1.5);
+
+
+    float depth = gl_FragCoord.z / gl_FragCoord.w;
+    float fogFactor = smoothstep( fogNear, fogFar, depth );
+
+    gl_FragColor = mix( gl_FragColor, vec4( fogColor, gl_FragColor.w ), fogFactor );
+
+    if (selected == 1) {
+        gl_FragColor += 0.125 + sin(time / 0.125) * 0.0625 * 1.0;
+    }
+
+    // screen alpha;
+
+    if (textureColor.a < 1.0) {
+        if (mod(gl_FragCoord.x + gl_FragCoord.y, 2.0) < 1.0) {
+            discard;
+        }
+    }
+
+}
+
+
+
+</script>
+
+
+<script id="vertexShader_skies" type="x-shader/x-vertex">
+
+        
+varying vec4 vecPos;
+
+void main() {
+
+    vec4 pos = vec4(position, 1.0);
+
+    vecPos = modelMatrix * pos;
+
+    gl_Position =   projectionMatrix *
+                    modelViewMatrix *
+                    vec4(position, 1.0);
+
+}
+
+
+
+</script>
+
+
+<script id="fragmentShader_skies" type="x-shader/x-fragment">
+
+        
+    uniform float time;
+    uniform sampler2D textureMap;
+    uniform vec3 cameraAngle;
+    uniform float pixelRatio;
+    uniform int selected;
+
+    varying vec4 vecPos;
+
+    void main() {
+
+        if (vecPos.y < 0.0 ||vecPos.y > 2048.0) {
+            discard;
+            return;
+        }
+        float PI = 3.14159265358979323846264;
+
+        vec2 nsc = gl_FragCoord.xy / 512.0 / 3.0;
+        nsc.y *= 3.0;
+        nsc.y += 0.5 * pixelRatio;
+        nsc /= pixelRatio;
+
+        float heading = cameraAngle.z;
+        float tilt = cameraAngle.y;
+
+        if (cameraAngle.x < 0.0) {
+            nsc.x -= heading;
+        } else {
+            nsc.x += heading;
+        }
+        nsc.y += tilt * 30.0;
+
+        //nsc /= PI;
+        //nsc = mod(nsc, 1.0);
+
+        gl_FragColor = texture2D(textureMap, nsc);
+
+        if (selected == 1) {
+            gl_FragColor += 0.0625 + sin(time / 0.125) * 0.0625 * 0.5;
+        }
+
+    }
+
+
+
+</script>
+
+<script id="vertexShader_items" type="x-shader/x-vertex">
+
+        
+uniform float time;
+uniform int nofollow;
+uniform int spherical;
+
+varying vec2 vUv;
+varying vec3 vColor;
+varying vec4 vecPos;
+varying float lightOffsetX;
+varying float lightOffsetY;
+
+void main() {
+
+    vUv = uv;
+    vColor = color;
+
+    lightOffsetX = lightOffsetY = 0.0;
+
+    vec4 pos = vec4(position, 1.0);
+
+    vecPos = modelMatrix * pos;
+
+    mat4 modelView = modelViewMatrix;
+
+    if (!(nofollow == 1)) {
+
+        modelView[0][0] = 1.0;
+        modelView[0][1] = 0.0;
+        modelView[0][2] = 0.0;
+
+        if (spherical == 1)
+        {
+            modelView[1][0] = 0.0;
+            modelView[1][1] = 1.0;
+            modelView[1][2] = 0.0;
+        }
+
+        modelView[2][0] = 0.0;
+        modelView[2][1] = 0.0;
+        modelView[2][2] = 1.0;
+
+    }
+
+
+    if (nofollow == 1) {
+
+        vec4 sector_intrude = vec4(normal, 1.0) * modelMatrix;
+
+        if (sector_intrude.x == normal.x) {
+
+           if (vecPos.z < cameraPosition.z) {
+               pos.z += 2.0;
+               lightOffsetY = -1.0;
+           } else {
+               pos.z -= 2.0;
+               lightOffsetY = 1.0;
+           }
+
+        } else {
+
+           if (vecPos.x < cameraPosition.x) {
+               pos.z += 2.0;
+               lightOffsetX = 1.0;
+           } else {
+               pos.z -= 2.0;
+               lightOffsetX = -1.0;
+           }
+
+        }
+
+    }
+
+    gl_Position =   projectionMatrix *
+                    modelView *
+                    pos;
+
+
+}
+
+
+
+</script>
+
+
+<script id="fragmentShader_items" type="x-shader/x-fragment">
+
+        uniform float time;
+uniform int nofollow;
+
+uniform sampler2D textureMap;
+uniform float textureSet[3];
+uniform float frames[12];
+uniform vec2 textureMapSize;
+
+uniform sampler2D lightMap;
+uniform vec4 lightMapSize;
+
+uniform int selected;
+
+uniform vec3 fogColor;
+uniform float fogNear;
+uniform float fogFar;
+
+varying vec2 vUv;
+varying vec3 vColor;
+varying vec4 vecPos;
+varying float lightOffsetX;
+varying float lightOffsetY;
+
+float rand(float seed){
+    return fract(sin(dot(vec2(seed, seed * 0.5) ,vec2(12.9898,78.233))) * 43758.5453);
+}
+
+
+float rand2(vec2 co){
+    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+}
+
+float calc_circle(float n, vec2 xy, vec2 offset)
+{
+	vec2 ixy = floor(xy) - offset;
+	vec2 centre = ixy + 0.5;
+
+	float r = 0.05 + 0.2 * rand2(ixy+100.0);
+	centre += 0.25 + 0.5 * rand2(ixy);
+
+	float angle = rand2(ixy + 50.0) + sin(time * 3.14159) * (rand2(ixy + 150.0) - 0.5);
+	centre.x += 0.25 * sin(angle);
+	centre.y += 0.25 * cos(angle);
+
+	vec2 d = xy - centre;
+	float hsq = d.x * d.x + d.y * d.y;
+
+	return n + 1.0 - smoothstep(r, r + 0.01, hsq);
+}
+
+float dapple()
+{
+	vec2 uv = vecPos.xz * 0.01;
+	float aspect = 1.0;
+	float dappleTime = sin(time * 3.14159 * 0.25) * 0.25;
+	float dappleTime2 = cos(time * 3.14159 * 0.25) * 0.25;
+
+	uv.x += dappleTime;
+	uv.y += dappleTime2;
+
+	float n = 0.0;
+
+	n = calc_circle(n, uv, vec2(0.0, 0.0));
+	n = calc_circle(n, uv, vec2(0.0, 1.0));
+	n = calc_circle(n, uv, vec2(1.0, 0.0));
+	n = calc_circle(n, uv, vec2(1.0, 1.0));
+
+	uv = vecPos.xz * 0.005;
+
+	uv.x += dappleTime2 * 0.5;
+	uv.y += dappleTime * 0.5;
+
+	n = calc_circle(n, uv, vec2(0.0, 0.0));
+	n = calc_circle(n, uv, vec2(0.0, 1.0));
+	n = calc_circle(n, uv, vec2(1.0, 0.0));
+	n = calc_circle(n, uv, vec2(1.0, 1.0));
+
+	uv = vecPos.xz * 0.0025;
+
+	uv.x -= dappleTime * 0.25;
+	uv.y -= dappleTime2 * 0.25;
+
+	n = calc_circle(n, uv, vec2(0.0, 0.0));
+	n = calc_circle(n, uv, vec2(0.0, 1.0));
+	n = calc_circle(n, uv, vec2(1.0, 0.0));
+	n = calc_circle(n, uv, vec2(1.0, 1.0));
+
+	return n * 0.125;
+
+}
+
+vec4 texture2D_bilinear(in sampler2D t, in vec2 uv, in vec2 textureSize, in vec2 texelSize)
+{
+    vec2 f = fract( uv * textureSize );
+    //uv += texelSize*0.06;    // <--- precision hack (anything higher breaks it);
+    vec4 tl = texture2D(t, uv);
+    vec4 tr = texture2D(t, uv + vec2(texelSize.x, 0.0));
+    vec4 bl = texture2D(t, uv + vec2(0.0, texelSize.y));
+    vec4 br = texture2D(t, uv + vec2(texelSize.x, texelSize.y));
+    vec4 tA = mix( tl, tr, f.x );
+    vec4 tB = mix( bl, br, f.x );
+    return mix( tA, tB, f.y );
+}
+
+vec2 getTextureCoords (int textureNum) {
+
+    vec2 ms = textureMapSize;
+    vec2 ft = vec2(0.0, 0.0);
+    vec2 fs = vec2(0.0, 0.0);
+
+    if (textureNum == 2) {
+
+        ft.x = frames[8];
+        ft.y = frames[9];
+        fs.x = frames[10];
+        fs.y = frames[11];
+
+    } else if (textureNum == 1) {
+
+        ft.x = frames[4];
+        ft.y = frames[5];
+        fs.x = frames[6];
+        fs.y = frames[7];
+
+    } else {
+
+        ft.x = frames[0];
+        ft.y = frames[1];
+        fs.x = frames[2];
+        fs.y = frames[3];
+
+    }
+
+    ft.y = ms.y - ft.y;
+    ft.y -= fs.y;
+
+    fs /= ms;
+    ft /= ms;
+
+    vec2 nsc = vUv;
+
+    nsc *= fs;
+
+    if (!gl_FrontFacing) {
+
+        nsc.x = 1.0 - nsc.x;
+        nsc.x += ft.x + fs.x;
+        nsc.y += ft.y;
+
+    } else {
+
+        nsc += ft;
+
+    }
+
+    return nsc;
+
+}
+
+void main() {
+
+    // gl_FragColor = texture2D(textureMap, vUv);
+
+    vec2 nsc;
+    float ftime = mod(time, 1.0);
+    if (ftime < 0.33) {
+        nsc = getTextureCoords(0);
+    } else if (ftime < 0.67) {
+        nsc = getTextureCoords(1);
+    } else {
+        nsc = getTextureCoords(2);
+    }
+
+
+    vec4 textureColor = texture2D(textureMap, nsc);
+
+
+    if (textureColor.a < 1.0) {
+        textureColor *= 0.75;
+        textureColor.a *= 2.0;
+    }
+
+    if (selected == 1 && (vUv.x < 0.03 || vUv.x > 0.97 || vUv.y < 0.03 || vUv.y > 0.97)) {
+
+        gl_FragColor = vec4(1, 0.95, 0.5, 1);
+        return;
+
+    } else if (textureColor.a < 0.5) {
+
+        discard;
+
+    }
+
+    // light maps overlay;
+
+    float tileX = floor(vecPos.x) * 0.03125 - lightMapSize.x + lightOffsetX;
+    float tileY = floor(vecPos.z) * 0.03125 - lightMapSize.y - lightOffsetY;
+
+    tileX /= lightMapSize.z;
+    tileY /= lightMapSize.w;
+    vec2 tCoord = vec2(tileX, 1.0 - tileY);
+
+    float sectorLighting = texture2D(lightMap, tCoord).a;
+
+    // special sector lighting effects;
+
+    float flash = mod(time, 2.0);
+
+    float lightingEffect = mod(sectorLighting * 255.0, 10.0);
+
+    if (sectorLighting == 0.0) {
+        sectorLighting = 0.65;
+        lightingEffect = 0.0;
+    }
+
+    if (lightingEffect < 0.5) {
+
+    } else if (lightingEffect < 1.5) {
+
+        sectorLighting = rand(floor(time * 8.0) / 8.0) > 0.8 ? sectorLighting + 0.1 : 0.1; // broken ballast A;
+
+    } else if (lightingEffect < 2.5) {
+
+        sectorLighting = rand(floor(2.9 + time * 8.0) / 8.0) > 0.8 ? sectorLighting + 0.1 : 0.1; // broken ballast B;
+
+    } else if (lightingEffect < 3.5) {
+
+        sectorLighting = mod(time, 0.25) > 0.15 ? sectorLighting - 0.01 : sectorLighting + 0.01; // torch flicker;
+
+    } else if (lightingEffect < 4.5) {
+
+        sectorLighting = flash < 0.667 ? sectorLighting + 0.1 : 0.1; // flashing light A;
+
+    } else if (lightingEffect < 5.5) {
+
+        sectorLighting = flash > 0.667 && flash < 1.333 ? sectorLighting + 0.1 : 0.1; // flashing light B;
+
+    } else if (lightingEffect < 6.5) {
+
+        sectorLighting = flash > 1.333 ? sectorLighting + 0.1 : 0.1; // flashing light C;
+
+    } else if (lightingEffect < 7.5) {
+
+        sectorLighting += dapple() * max(0.25, sectorLighting); // dappled light;
+
+    } else if (lightingEffect < 8.5) {
+
+        sectorLighting = sectorLighting + sin(time * 3.14159) * 0.25; // pulsing light;
+
+    }
+
+    sectorLighting = clamp(sectorLighting, 0.0, 1.0);
+
+
+    vec3 lightLevel = vec3(1.0, 1.0, 1.0);
+
+    lightLevel *= sectorLighting;
+    //lightLevel += texture2D(lightMap, tCoord).rgb;
+    lightLevel += texture2D_bilinear(lightMap, tCoord, lightMapSize.zw, vec2(1.0 / lightMapSize.z, 1.0 / lightMapSize.w)).rgb;
+
+
+    if (textureColor.r >= 0.999 || textureColor.g >= 0.999) {
+        lightLevel *= 0.0;
+        lightLevel += 1.0;
+    }
+
+
+
+    // liquid mask;
+
+    if (vColor.r > 0.0) {
+
+        float liquidLevel = vColor.r * 1.0;
+        float vecPosLevel = vecPos.y * 0.0625;
+
+        if (liquidLevel >= vecPosLevel - 1.0) {
+
+            float liquidType = vColor.g * 1.0;
+
+            float pieTime = time * 3.14159 * 0.5;
+            vec4 vv = vecPos * 0.5;
+            vv.x = floor(vv.x / 2.0) * 2.0;
+
+            float tmp = vv.x;
+            float tmp2 = vv.z;
+
+            vv.z += min(16.0, max( -16.0, cos(cos(tmp * 0.1 + (pieTime + 10.0))) * 16.0 ));
+            float col = floor((sin(vv.x * 0.25) * 0.25 + cos(vv.z * 0.25) * 0.25 + cos(vv.y * 0.25) * 0.25 + 0.25) * 10.0) / 8.0;
+
+            vec4 liquidTint;
+            vec4 noTint = vec4(1.0, 1.0, 1.0, 1.0);
+            float glowAmount = mix(0.0, 1.0, max(0.0, min((liquidLevel - vecPosLevel) + 1.0, 1.0)));
+
+            if (liquidType >= 1.9) {
+                if (liquidLevel >= vecPosLevel - 1.0) {
+                    liquidTint = vec4(1.0, 0.5, 0.0, 1.0);
+                    glowAmount *= 0.5;
+                }
+            } else if (liquidType >= 0.9) {
+                if (liquidLevel >= vecPosLevel - 1.0) {
+                    liquidTint = vec4(0.0, 1.5, 0.5, 1.0);
+                    glowAmount *= 0.25;
+                }
+            } else {
+
+                if (liquidLevel >= vecPosLevel - 1.0) {
+
+                    liquidTint = vec4(0.0, 0.5, 1.0, 1.0);
+                    if (liquidLevel < vecPosLevel) {
+                        liquidTint *= 0.0;
+                        liquidTint += 1.5 * sectorLighting;
+                        liquidTint = max(textureColor, liquidTint);
+                    }
+
+                    col -= cos(vv.z * 0.25 + pieTime);
+                    if (col > 0.5) col = 0.5 - col;
+                    col += 1.0;
+                    col = max(0.0, col);
+                    col *= 0.25 + abs(mod(tmp * 0.05 + tmp2 * 0.05, 1.0) - 0.5);
+                    col = max(0.25, col);
+                    glowAmount *= col;
+
+                }
+
+            }
+
+            textureColor *= mix(liquidTint, noTint, max(0.0, min(vecPosLevel - liquidLevel, 1.0)));
+            lightLevel += glowAmount;
+
+        }
+
+    }
+
+
+
+
+    gl_FragColor = textureColor * clamp(vec4(lightLevel, 1.0) * 1.25, 0.0, 1.5);
+
+
+    float depth = gl_FragCoord.z / gl_FragCoord.w;
+    float fogFactor = smoothstep( fogNear, fogFar, depth );
+
+    gl_FragColor = mix( gl_FragColor, vec4( fogColor, gl_FragColor.w ), fogFactor );
+
+    if (selected == 1) {
+        gl_FragColor += 0.125 + sin(time / 0.125) * 0.0625 * 1.0;
+    }
+
+    // screen alpha;
+
+    if (textureColor.a < 1.0) {
+        if (mod(gl_FragCoord.x + gl_FragCoord.y, 2.0) < 1.0) {
+            discard;
+        }
+    }
+
+}
+
+
+
+</script>
+
+<script id="vertexShader_bipeds" type="x-shader/x-vertex">
+
+        
+uniform float time;
+uniform int noOverlap;
+
+varying vec2 vUv;
+varying vec3 vColor;
+varying vec4 vecPos;
+varying vec3 norm;
+
+void main() {
+
+    vUv = uv;
+    vColor = color;
+
+    vec4 pos;
+
+    if (noOverlap == 1) {
+        pos = vec4(position, 1.0);
+    } else {
+        pos = vec4(position - normal * 0.05, 1.0);
+    }
+
+    vecPos = modelMatrix * pos;
+
+    norm = normal;
+
+    gl_Position =   projectionMatrix *
+                    modelViewMatrix *
+                    pos;
+
+
+}
+
+
+
+</script>
+
+
+<script id="fragmentShader_bipeds" type="x-shader/x-fragment">
+
+        uniform float time;
+
+uniform sampler2D textureMap;
+uniform float textureSet[3];
+uniform float frames[12];
+uniform vec2 textureMapSize;
+
+uniform sampler2D lightMap;
+uniform vec4 lightMapSize;
+
+uniform int selected;
+
+uniform vec3 fogColor;
+uniform float fogNear;
+uniform float fogFar;
+
+varying vec2 vUv;
+varying vec3 vColor;
+varying vec4 vecPos;
+varying vec3 norm;
+
+float rand(float seed){
+    return fract(sin(dot(vec2(seed, seed * 0.5) ,vec2(12.9898,78.233))) * 43758.5453);
+}
+
+
+float rand2(vec2 co){
+    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+}
+
+float calc_circle(float n, vec2 xy, vec2 offset)
+{
+	vec2 ixy = floor(xy) - offset;
+	vec2 centre = ixy + 0.5;
+
+	float r = 0.05 + 0.2 * rand2(ixy+100.0);
+	centre += 0.25 + 0.5 * rand2(ixy);
+
+	float angle = rand2(ixy + 50.0) + sin(time * 3.14159) * (rand2(ixy + 150.0) - 0.5);
+	centre.x += 0.25 * sin(angle);
+	centre.y += 0.25 * cos(angle);
+
+	vec2 d = xy - centre;
+	float hsq = d.x * d.x + d.y * d.y;
+
+	return n + 1.0 - smoothstep(r, r + 0.01, hsq);
+}
+
+float dapple()
+{
+	vec2 uv = vecPos.xz * 0.01;
+	float aspect = 1.0;
+	float dappleTime = sin(time * 3.14159 * 0.25) * 0.25;
+	float dappleTime2 = cos(time * 3.14159 * 0.25) * 0.25;
+
+	uv.x += dappleTime;
+	uv.y += dappleTime2;
+
+	float n = 0.0;
+
+	n = calc_circle(n, uv, vec2(0.0, 0.0));
+	n = calc_circle(n, uv, vec2(0.0, 1.0));
+	n = calc_circle(n, uv, vec2(1.0, 0.0));
+	n = calc_circle(n, uv, vec2(1.0, 1.0));
+
+	uv = vecPos.xz * 0.005;
+
+	uv.x += dappleTime2 * 0.5;
+	uv.y += dappleTime * 0.5;
+
+	n = calc_circle(n, uv, vec2(0.0, 0.0));
+	n = calc_circle(n, uv, vec2(0.0, 1.0));
+	n = calc_circle(n, uv, vec2(1.0, 0.0));
+	n = calc_circle(n, uv, vec2(1.0, 1.0));
+
+	uv = vecPos.xz * 0.0025;
+
+	uv.x -= dappleTime * 0.25;
+	uv.y -= dappleTime2 * 0.25;
+
+	n = calc_circle(n, uv, vec2(0.0, 0.0));
+	n = calc_circle(n, uv, vec2(0.0, 1.0));
+	n = calc_circle(n, uv, vec2(1.0, 0.0));
+	n = calc_circle(n, uv, vec2(1.0, 1.0));
+
+	return n * 0.125;
+
+}
+
+
+vec4 texture2D_bilinear(in sampler2D t, in vec2 uv, in vec2 textureSize, in vec2 texelSize)
+{
+    vec2 f = fract( uv * textureSize );
+    vec4 tl = texture2D(t, uv);
+    vec4 tr = texture2D(t, uv + vec2(texelSize.x, 0.0));
+    vec4 bl = texture2D(t, uv + vec2(0.0, texelSize.y));
+    vec4 br = texture2D(t, uv + vec2(texelSize.x, texelSize.y));
+    vec4 tA = mix( tl, tr, f.x );
+    vec4 tB = mix( bl, br, f.x );
+    return mix( tA, tB, f.y );
+}
+
+vec2 getTextureCoords (int textureNum) {
+
+    vec2 ms = textureMapSize;
+    vec2 ft = vec2(0.0, 0.0);
+    vec2 fs = vec2(0.0, 0.0);
+
+    if (textureNum == 2) {
+
+        ft.x = frames[8];
+        ft.y = frames[9];
+        fs.x = frames[10];
+        fs.y = frames[11];
+
+    } else if (textureNum == 1) {
+
+        ft.x = frames[4];
+        ft.y = frames[5];
+        fs.x = frames[6];
+        fs.y = frames[7];
+
+    } else {
+
+        ft.x = frames[0];
+        ft.y = frames[1];
+        fs.x = frames[2];
+        fs.y = frames[3];
+
+    }
+
+    ft.y = ms.y - ft.y;
+    ft.y -= fs.y;
+
+    fs /= ms;
+    ft /= ms;
+
+    vec2 nsc = vUv;
+
+    nsc *= fs;
+
+    if (!gl_FrontFacing) {
+
+        nsc.x = 1.0 - nsc.x;
+        nsc.x += ft.x + fs.x;
+        nsc.y += ft.y;
+
+    } else {
+
+        nsc += ft;
+
+    }
+
+    return nsc;
+
+}
+
+void main() {
+
+    // gl_FragColor = texture2D(textureMap, vUv);
+
+    vec2 nsc = getTextureCoords(0);
+
+    vec4 textureColor = texture2D(textureMap, nsc);
+
+    if (textureColor.a < 0.5) {
+        discard;
+    }
+
+    // light maps overlay;
+
+    float tileX = floor(vecPos.x) * 0.03125 - lightMapSize.x;
+    float tileY = floor(vecPos.z) * 0.03125 - lightMapSize.y;
+
+    tileX /= lightMapSize.z;
+    tileY /= lightMapSize.w;
+    vec2 tCoord = vec2(tileX, 1.0 - tileY);
+
+    float sectorLighting = texture2D(lightMap, tCoord).a;
+
+    // special sector lighting effects;
+
+    float flash = mod(time, 2.0);
+
+    float lightingEffect = mod(sectorLighting * 255.0, 10.0);
+
+    if (sectorLighting == 0.0) {
+        sectorLighting = 0.65;
+        lightingEffect = 0.0;
+    }
+
+    if (lightingEffect < 0.5) {
+
+    } else if (lightingEffect < 1.5) {
+
+        sectorLighting = rand(floor(time * 8.0) / 8.0) > 0.8 ? sectorLighting + 0.1 : 0.1; // broken ballast A;
+
+    } else if (lightingEffect < 2.5) {
+
+        sectorLighting = rand(floor(2.9 + time * 8.0) / 8.0) > 0.8 ? sectorLighting + 0.1 : 0.1; // broken ballast B;
+
+    } else if (lightingEffect < 3.5) {
+
+        sectorLighting = mod(time, 0.25) > 0.15 ? sectorLighting - 0.01 : sectorLighting + 0.01; // torch flicker;
+
+    } else if (lightingEffect < 4.5) {
+
+        sectorLighting = flash < 0.667 ? sectorLighting + 0.1 : 0.1; // flashing light A;
+
+    } else if (lightingEffect < 5.5) {
+
+        sectorLighting = flash > 0.667 && flash < 1.333 ? sectorLighting + 0.1 : 0.1; // flashing light B;
+
+    } else if (lightingEffect < 6.5) {
+
+        sectorLighting = flash > 1.333 ? sectorLighting + 0.1 : 0.1; // flashing light C;
+
+    } else if (lightingEffect < 7.5) {
+
+        sectorLighting += dapple() * max(0.25, sectorLighting); // dappled light;
+
+    } else if (lightingEffect < 8.5) {
+
+        sectorLighting = sectorLighting + sin(time * 3.14159) * 0.25; // pulsing light;
+
+    }
+
+    sectorLighting = clamp(sectorLighting, 0.0, 1.0);
+
+
+    vec3 lightLevel = vec3(1.0, 1.0, 1.0);
+
+    lightLevel *= sectorLighting;
+    //lightLevel += texture2D(lightMap, tCoord).rgb;
+    lightLevel += texture2D_bilinear(lightMap, tCoord, lightMapSize.zw, vec2(1.0 / lightMapSize.z, 1.0 / lightMapSize.w)).rgb;
+
+
+    if (textureColor.r >= 0.999 || textureColor.g >= 0.999 || textureColor.b >= 0.999) {
+        lightLevel *= 0.0;
+        lightLevel += 1.0;
+    }
+
+    lightLevel -= abs(norm.z) * 0.125;
+    lightLevel -= abs(norm.x) * 0.25;
+    if (norm.y < 0.0) lightLevel += norm.y * 0.35;
+
+
+
+
+    // liquid mask;
+
+    if (vColor.r > 0.0) {
+
+        float liquidLevel = vColor.r * 1.0;
+        float vecPosLevel = vecPos.y * 0.0625;
+
+        if (liquidLevel >= vecPosLevel - 1.0) {
+
+            float liquidType = vColor.g * 1.0;
+
+            float pieTime = time * 3.14159 * 0.5;
+            vec4 vv = vecPos * 0.5;
+            vv.x = floor(vv.x / 2.0) * 2.0;
+
+            float tmp = vv.x;
+            float tmp2 = vv.z;
+
+            vv.z += min(16.0, max( -16.0, cos(cos(tmp * 0.1 + (pieTime + 10.0))) * 16.0 ));
+            float col = floor((sin(vv.x * 0.25) * 0.25 + cos(vv.z * 0.25) * 0.25 + cos(vv.y * 0.25) * 0.25 + 0.25) * 10.0) / 8.0;
+
+            vec4 liquidTint;
+            vec4 noTint = vec4(1.0, 1.0, 1.0, 1.0);
+            float glowAmount = mix(0.0, 1.0, max(0.0, min((liquidLevel - vecPosLevel) + 1.0, 1.0)));
+
+            if (liquidType >= 1.9) {
+                if (liquidLevel >= vecPosLevel - 1.0) {
+                    liquidTint = vec4(1.5, 0.5, 0.0, 1.0);
+                    glowAmount *= 0.5;
+                }
+            } else if (liquidType >= 0.9) {
+                if (liquidLevel >= vecPosLevel - 1.0) {
+                    liquidTint = vec4(0.0, 1.5, 0.5, 1.0);
+                    glowAmount *= 0.25;
+                }
+            } else {
+
+                if (liquidLevel >= vecPosLevel - 1.0) {
+
+                    liquidTint = vec4(0.0, 0.5, 1.0, 1.0);
+                    if (liquidLevel < vecPosLevel) {
+                        liquidTint *= 0.0;
+                        liquidTint += 1.5 * sectorLighting;
+                        liquidTint = max(textureColor, liquidTint);
+                    }
+
+                    col -= cos(vv.z * 0.25 + pieTime);
+                    if (col > 0.5) col = 0.5 - col;
+                    col += 1.0;
+                    col = max(0.0, col);
+                    col *= 0.25 + abs(mod(tmp * 0.05 + tmp2 * 0.05, 1.0) - 0.5);
+                    col = max(0.25, col);
+                    glowAmount *= col;
+
+                }
+
+            }
+
+            textureColor *= mix(liquidTint, noTint, max(0.0, min(vecPosLevel - liquidLevel, 1.0)));
+            lightLevel += glowAmount;
+
+        }
+
+    }
+
+
+
+
+    gl_FragColor = textureColor * clamp(vec4(lightLevel, 1.0) * 1.25, 0.0, 1.5);
+
+
+    float depth = gl_FragCoord.z / gl_FragCoord.w;
+    float fogFactor = smoothstep( fogNear, fogFar, depth );
+
+    gl_FragColor = mix( gl_FragColor, vec4( fogColor, gl_FragColor.w ), fogFactor );
+
+    if (selected == 1) {
+        gl_FragColor += 0.125 + sin(time / 0.125) * 0.0625 * 1.0;
+    }
+
+}
+
+
+
+</script>
+
+
+<script id="fragmentShader_shadows" type="x-shader/x-fragment">precision highp float;
+
+
+varying vec2 vTextureCoord;
+uniform sampler2D uSampler;
+uniform vec2 dimensions;
+uniform float numLights;
+
+float attenuation (float r, float f, float d) {
+
+    return pow(max(0.0, 1.0 - (d / r)), f + 1.0);
+
+}
+
+float getTextureData (int lightNum, int dataOffset) {
+
+    vec2 size = dimensions.xy;
+    float w = dimensions.x;
+    float x = float(dataOffset);
+    float y = float(lightNum);
+
+    vec2 coord = vec2(x + 0.5, y + 0.5);
+
+    return texture2D(uSampler, coord / size).b;
+
+}
+
+vec2 lightPos (int lightNum) {
+
+    float x1 = getTextureData(lightNum, 0);
+    float x2 = getTextureData(lightNum, 1);
+    float y1 = getTextureData(lightNum, 4);
+    float y2 = getTextureData(lightNum, 5);
+
+    vec2 pos = vec2((x1 * 256.0) + x2, (y1 * 256.0) + y2);
+
+    pos *= 256.0;
+    pos -= 1024.0;
+    pos -= 4.0;
+
+    return pos;
+
+}
+
+vec3 lightColor (int lightNum) {
+
+    float r = getTextureData(lightNum, 8);
+    float g = getTextureData(lightNum, 9);
+    float b = getTextureData(lightNum, 10);
+
+    return vec3(r,g,b);
+
+}
+
+vec3 getLightFactor (float oX, float oY) {
+
+    vec3 res = vec3(0.0, 0.0, 0.0);
+
+    float lightFactor = 0.0;
+    vec3 shadowValue;
+    int i;
+    vec2 coord = vTextureCoord;
+    coord.x += oX;
+    coord.y += oY;
+    coord = clamp(coord, 0.0, 1.0);
+    coord.y = 1.0 - coord.y;
+
+    vec2 size = dimensions.xy;
+    vec2 pos = coord * size;
+    vec2 light;
+    float lightPower;
+    float lightSpace;
+    float attenAmount;
+    vec3 color;
+    vec2 uLight;
+    vec2 uCoord;
+    float dist;
+
+    for (int i = 0; i < 256; i++) {
+
+        if (float(i) > numLights) {
+            break;
+        }
+
+        light = lightPos(i);
+        lightSpace = max(1.0, getTextureData(i, 2) * 16.0);
+        lightPower = getTextureData(i, 6);
+        attenAmount = 100.0 / (lightPower * lightPower * 1000.0);
+        uLight = light / size;
+        color = lightColor(i);
+
+        dist  = distance(light, pos);
+
+        lightFactor = attenuation(80.0, attenAmount, dist) * (1.0 + lightPower * 5.0);
+
+        shadowValue = vec3(1.0, 1.0, 1.0);
+        float w;
+
+        if (lightSpace > 0.0 && dist < 320.0 / attenAmount) {
+
+            for (int j = 0; j < 128; j++) {
+
+                w = float(j) / 128.0;
+
+                uCoord = mix(coord, uLight, w);
+
+                shadowValue = min(shadowValue, texture2D(uSampler, uCoord).rrr / lightSpace);
+            }
+
+        }
+
+        vec3 huey;
+
+        if (color.r > color.b) {
+            huey = vec3(1.0, 0.7, 0.5);
+        } else if (color.r < color.b) {
+            huey = vec3(0.5, 0.7, 1.0);
+        } else {
+            huey = vec3(1.0, 1.0, 1.0);
+        }
+
+        res.rgb = clamp(res.rgb + color.rgb * shadowValue.rgb * lightFactor * huey, 0.0, 1.0);
+
+
+    }
+
+    normalize(res.rgb);
+
+    return res;
+
+}
+
+void addSectorLighting () {
+
+    vec2 size = dimensions.xy;
+    vec2 coord = (floor(vTextureCoord * size) + 0.5) / size;
+    coord.y = 1.0 - coord.y;
+
+    float occ = max(0.2, texture2D(uSampler, coord).r);
+
+    //gl_FragColor.rgb = clamp((gl_FragColor.rgb + texture2D(uSampler, coord).ggg) * min(1.0, occ * 4.0), 0.0, 1.0);
+    gl_FragColor.a = clamp(texture2D(uSampler, coord).g, 0.0, 1.0);
+}
+
+void main () {
+
+    //gl_FragColor = texture2D(uSampler, vTextureCoord).bbba;
+    //return;
+
+    gl_FragColor *= 0.0;
+    gl_FragColor.a = 1.0;
+    float biasX = 1.0 / dimensions.x;
+    float biasY = 1.0 / dimensions.y;
+
+    vec3 res0 = getLightFactor(biasX, 0.0);
+    vec3 res1 = getLightFactor(-biasX, 0.0);
+    vec3 res2 = getLightFactor(0.0, biasY);
+    vec3 res3 = getLightFactor(0.0, -biasY);
+
+    gl_FragColor.rgb = (res0.rgb + res1.rgb + res2.rgb + res3.rgb) * 0.25;
+
+    addSectorLighting();
+
+   // gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+
+}
+</script>
+
+
+<div id="game_container" class="none">
+
+    <div id="gameview"></div>
+
+    <!-- <br /> <br />
+
+    <h2>DESKTOP CONTROLS</h2>
+    <p>Use arrow keys or WASD to move, mouse to look around.</p>
+    <p>Click in the view to allow the mouse to wrap. (Chrome, Firefox only)</p>
+    <p>SHIFT and arrow keys allow for running.</p>
+<br />
+    <h2>MOBILE CONTROLS</h2>
+    <p>Touch and drag on the left side of the screen to move and turn.</p>
+    <p>Touch and drag on the right to look around.</p>
+    <p>Drag farther up and down on the left to run.</p> -->
+</div>
+
+
+
+<script src="scripts/vendor.js"></script>
+
+
+<script src="scripts/main.js"></script>
+</body>
+</html>

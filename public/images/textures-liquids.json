@@ -1,0 +1,13 @@
+{
+"images": ["textures-liquids.png"],
+"frames": [
+
+    [64, 0, 64, 64], 
+    [0, 64, 64, 64], 
+    [0, 0, 64, 64]
+],
+"texturepacker": [
+        "SmartUpdateHash: $TexturePacker:SmartUpdate:7e640fd6a1bdd89b319950be50c6e394:1/1$",
+        "Created with TexturePacker (http://www.texturepacker.com) for Sploder!"
+]
+}
