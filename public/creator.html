@@ -1,0 +1,480 @@
+<!doctype html>
+<html class="no-js" lang="">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Sploder 3D Creator</title>
+    <link rel="stylesheet" href="styles/creator.css">
+    <script src="scripts/vendor/modernizr.js"></script>
+</head>
+<body>
+
+<!-- ==================== TOP MENU BAR ==================== -->
+<div id="menu-bar">
+    <button id="btn-hamburger" class="menu-icon-btn" title="Menu">&#9776;</button>
+    <div class="menu-items">
+        <button class="menu-btn" data-menu="project">Project</button>
+        <button class="menu-btn" data-menu="edit">Edit</button>
+        <button class="menu-btn" data-menu="test">Test</button>
+        <button class="menu-btn" data-menu="publish">Publish</button>
+        <button class="menu-btn" data-menu="help">Help</button>
+    </div>
+    <div class="menu-spacer"></div>
+    <div id="level-selector">
+        <span class="level-label">Level</span>
+        <button id="level-badge" class="level-num">1</button>
+    </div>
+    <div class="menu-spacer"></div>
+    <div class="menu-right">
+        <button id="btn-undo" class="menu-icon-btn" title="Undo">&#8630;</button>
+        <button id="btn-redo" class="menu-icon-btn" title="Redo">&#8631;</button>
+        <button id="btn-fullscreen" class="menu-icon-btn" title="Fullscreen">&#x26F6;</button>
+    </div>
+</div>
+
+<!-- ==================== DROPDOWN MENUS ==================== -->
+<div id="dropdown-project" class="dropdown-menu" style="display:none">
+    <button data-action="new">New Project</button>
+    <button data-action="open">Open Project</button>
+    <button data-action="save">Save Project</button>
+    <button data-action="saveas">Save As...</button>
+    <hr>
+    <button data-action="export">Export JSON</button>
+    <button data-action="import">Import JSON</button>
+</div>
+<div id="dropdown-edit" class="dropdown-menu" style="display:none">
+    <button data-action="undo">Undo <span class="shortcut">Ctrl+Z</span></button>
+    <button data-action="redo">Redo <span class="shortcut">Ctrl+Y</span></button>
+    <hr>
+    <button data-action="cut">Cut <span class="shortcut">Ctrl+X</span></button>
+    <button data-action="copy">Copy <span class="shortcut">Ctrl+C</span></button>
+    <button data-action="paste">Paste <span class="shortcut">Ctrl+V</span></button>
+    <button data-action="delete">Delete <span class="shortcut">Del</span></button>
+    <hr>
+    <button data-action="selectall">Select All <span class="shortcut">Ctrl+A</span></button>
+    <button data-action="deselect">Deselect</button>
+    <hr>
+    <button data-action="duplicate">Duplicate</button>
+    <button data-action="mirror-h">Mirror Horizontal</button>
+    <button data-action="mirror-v">Mirror Vertical</button>
+    <button data-action="rotate">Rotate 90°</button>
+</div>
+<div id="dropdown-test" class="dropdown-menu" style="display:none">
+    <button data-action="test-level">Test Current Level</button>
+    <button data-action="test-game">Test Full Game</button>
+</div>
+<div id="dropdown-publish" class="dropdown-menu" style="display:none">
+    <button data-action="publish-game">Publish Game</button>
+    <button data-action="share">Share Link</button>
+</div>
+<div id="dropdown-help" class="dropdown-menu" style="display:none">
+    <button data-action="help-docs">Documentation</button>
+    <button data-action="help-keyboard">Keyboard Shortcuts</button>
+    <button data-action="help-about">About Sploder 3D</button>
+</div>
+
+<!-- ==================== MAIN EDITOR AREA ==================== -->
+<div id="editor-container">
+
+    <!-- LEFT: 2D Map Editor -->
+    <div id="map-panel">
+        <!-- Map tool sidebar -->
+        <div id="map-tools">
+            <button class="tool-btn active" data-tool="draw" title="Draw Walls">&#9998;</button>
+            <button class="tool-btn" data-tool="select" title="Select">
+                <svg width="16" height="16" viewBox="0 0 16 16"><path d="M2 2h12v12H2z" fill="none" stroke="currentColor" stroke-dasharray="2,2"/></svg>
+            </button>
+            <button class="tool-btn" data-tool="place" title="Place Objects">&#9881;</button>
+        </div>
+        <!-- Map canvas -->
+        <div id="map-viewport">
+            <canvas id="map-canvas"></canvas>
+            <!-- Crosshair -->
+            <div id="map-crosshair-h" class="map-crosshair"></div>
+            <div id="map-crosshair-v" class="map-crosshair"></div>
+        </div>
+    </div>
+
+    <!-- DIVIDER (draggable) -->
+    <div id="panel-divider"></div>
+
+    <!-- RIGHT: 3D Preview -->
+    <div id="preview-panel">
+        <div id="gameview"></div>
+        <!-- 3D overlay tools -->
+        <div id="preview-tools">
+            <button id="btn-auto-camera" class="preview-tool-btn active" title="Auto Camera">&#127909;</button>
+            <button id="btn-font-overlay" class="preview-tool-btn" title="Toggle Labels">&#65;;</button>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== BOTTOM PANEL ==================== -->
+<div id="bottom-panel">
+
+    <!-- Bottom panel tab bar -->
+    <div id="bottom-tabs">
+        <button class="tab-btn" data-tab="textures" title="Textures">
+            <svg width="18" height="18" viewBox="0 0 18 18"><rect x="1" y="1" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="1" y1="9" x2="17" y2="9" stroke="currentColor"/><line x1="9" y1="1" x2="9" y2="17" stroke="currentColor"/></svg>
+        </button>
+        <button class="tab-btn active" data-tab="walls" title="Wall Properties">
+            <svg width="18" height="18" viewBox="0 0 18 18"><rect x="2" y="5" width="14" height="10" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="2" y1="10" x2="16" y2="10" stroke="currentColor"/></svg>
+        </button>
+        <button class="tab-btn" data-tab="paint" title="Paint">
+            <svg width="18" height="18" viewBox="0 0 18 18"><path d="M3 15L8 3l3 6 4-2" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+        </button>
+        <button class="tab-btn" data-tab="tags" title="Tags">&#127991;</button>
+        <button class="tab-btn" data-tab="biped" title="Character">&#128100;</button>
+        <div class="tab-spacer"></div>
+        <div id="selection-info"><span id="sel-count">0</span> <span id="sel-type">items</span> selected</div>
+        <div class="tab-spacer"></div>
+        <!-- Selection actions -->
+        <button id="btn-sel-delete" class="sel-action-btn" title="Delete">&#10005;</button>
+        <button id="btn-sel-duplicate" class="sel-action-btn" title="Duplicate">&#10064;</button>
+        <button id="btn-sel-copy" class="sel-action-btn" title="Copy">&#128203;</button>
+        <button id="btn-sel-paste" class="sel-action-btn" title="Paste">&#128195;</button>
+    </div>
+
+    <!-- Bottom panel content area -->
+    <div id="bottom-content">
+
+        <!-- TEXTURES TAB -->
+        <div class="tab-content" data-tab="textures" style="display:none">
+            <div id="texture-grid" class="asset-grid"></div>
+        </div>
+
+        <!-- WALL PROPERTIES TAB -->
+        <div class="tab-content active" data-tab="walls">
+            <!-- Left: surface categories -->
+            <div id="surface-categories">
+                <label class="surface-cat active" data-surface="floor">
+                    <input type="checkbox" checked> FLOOR
+                </label>
+                <label class="surface-cat" data-surface="bottomwalls">
+                    <input type="checkbox"> BOTTOM WALLS
+                </label>
+                <label class="surface-cat" data-surface="bottomedges">
+                    <input type="checkbox"> BOTTOM EDGES
+                </label>
+                <label class="surface-cat" data-surface="ceiling">
+                    <input type="checkbox"> CEILING
+                </label>
+                <label class="surface-cat" data-surface="topwalls">
+                    <input type="checkbox"> TOP WALLS
+                </label>
+                <label class="surface-cat" data-surface="topedges">
+                    <input type="checkbox"> TOP EDGES
+                </label>
+            </div>
+            <!-- Middle: preview of selected texture on surface -->
+            <div id="surface-preview">
+                <canvas id="surface-preview-canvas" width="128" height="128"></canvas>
+            </div>
+            <!-- Right: texture picker grid for this surface -->
+            <div id="surface-texture-grid" class="asset-grid"></div>
+        </div>
+
+        <!-- PAINT / COLOR TAB -->
+        <div class="tab-content" data-tab="paint" style="display:none">
+            <div id="paint-editor">
+                <canvas id="paint-canvas" width="256" height="256"></canvas>
+                <div id="paint-tools-sidebar">
+                    <button class="paint-tool active" data-paint="pencil" title="Pencil">&#9998;</button>
+                    <button class="paint-tool" data-paint="eraser" title="Eraser">&#9003;</button>
+                    <button class="paint-tool" data-paint="fill" title="Fill">&#9686;</button>
+                    <button class="paint-tool" data-paint="rect" title="Rectangle">&#9633;</button>
+                    <button class="paint-tool" data-paint="circle" title="Circle">&#9675;</button>
+                    <button class="paint-tool" data-paint="line" title="Line">&#9585;</button>
+                    <button class="paint-tool" data-paint="eyedrop" title="Eyedropper">&#128065;</button>
+                </div>
+            </div>
+            <div id="color-palette"></div>
+        </div>
+
+        <!-- TAGS TAB -->
+        <div class="tab-content" data-tab="tags" style="display:none">
+            <div id="tag-editor">
+                <p class="tab-placeholder">Select an object to edit its tags.</p>
+            </div>
+        </div>
+
+        <!-- CHARACTER / BIPED TAB -->
+        <div class="tab-content" data-tab="biped" style="display:none">
+            <div id="biped-editor">
+                <p id="biped-no-selection" class="tab-placeholder">Select a biped on the map to edit its properties.</p>
+                <div id="biped-sliders">
+                    <div class="slider-row">
+                        <label>WEIGHT</label>
+                        <input type="range" min="0" max="255" value="128" data-prop="weight">
+                        <span class="slider-val">50</span>
+                    </div>
+                    <div class="slider-row">
+                        <label>GENDER</label>
+                        <input type="range" min="0" max="255" value="128" data-prop="gender">
+                        <span class="slider-val">50</span>
+                    </div>
+                    <div class="slider-row">
+                        <label>HEAD SIZE</label>
+                        <input type="range" min="0" max="255" value="128" data-prop="headheight">
+                        <span class="slider-val">50</span>
+                    </div>
+                    <div class="slider-row">
+                        <label>HEIGHT</label>
+                        <input type="range" min="0" max="255" value="128" data-prop="height">
+                        <span class="slider-val">50</span>
+                    </div>
+                    <div class="slider-row">
+                        <label>STRENGTH</label>
+                        <input type="range" min="0" max="255" value="128" data-prop="strength">
+                        <span class="slider-val">50</span>
+                    </div>
+                    <div class="slider-row">
+                        <label>BEASTLY</label>
+                        <input type="range" min="0" max="255" value="0" data-prop="beastly">
+                        <span class="slider-val">0</span>
+                    </div>
+                </div>
+                <div id="biped-preview">
+                    <canvas id="biped-preview-canvas" width="200" height="200"></canvas>
+                </div>
+                <div id="biped-skins" class="asset-grid"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== FLOW EDITOR (Modal Overlay) ==================== -->
+<div id="flow-overlay" style="display:none">
+    <div id="flow-editor">
+        <div id="flow-header">
+            <h3>Logic Editor</h3>
+            <button id="flow-close">&times;</button>
+        </div>
+        <div id="flow-canvas-container">
+            <canvas id="flow-canvas"></canvas>
+        </div>
+        <div id="flow-toolbar">
+            <div id="flow-node-palette">
+                <button class="flow-node-btn trigger" data-nodetype="trigger">
+                    <span class="flow-icon">&#9873;</span> EVENT
+                </button>
+                <button class="flow-node-btn condition" data-nodetype="condition">
+                    <span class="flow-icon">IF</span> CONDITION
+                </button>
+                <button class="flow-node-btn action" data-nodetype="action">
+                    <span class="flow-icon">&#9889;</span> ACTION
+                </button>
+                <button class="flow-node-btn context" data-nodetype="context">
+                    <span class="flow-icon">&#128100;</span> CONTEXT
+                </button>
+                <button class="flow-node-btn delay" data-nodetype="delay">
+                    <span class="flow-icon">&#9201;</span> DELAY
+                </button>
+                <button class="flow-node-btn loop" data-nodetype="loop">
+                    <span class="flow-icon">&#8634;</span> LOOP
+                </button>
+            </div>
+        </div>
+        <div id="flow-readout">
+            <span id="flow-text">ON start THEN DO changeHealth -10</span>
+        </div>
+
+        <!-- Trigger subtype picker -->
+        <div id="trigger-picker" class="flow-picker" style="display:none">
+            <button data-sub="2"><span class="fpick-icon">&#9873;</span> ON START</button>
+            <button data-sub="3"><span class="fpick-icon">IF</span> ON COLLISION</button>
+            <button data-sub="4"><span class="fpick-icon">&#9889;</span> ON COLLISION END</button>
+            <button data-sub="5"><span class="fpick-icon">&#128065;</span> ON NEAR IN</button>
+            <button data-sub="8"><span class="fpick-icon">&#9684;</span> ON NEAR</button>
+            <button data-sub="6"><span class="fpick-icon">&#9898;</span> ON NEAR OUT</button>
+            <button data-sub="7"><span class="fpick-icon">&#9898;</span> ON EMPTY</button>
+            <button data-sub="9"><span class="fpick-icon">&#128065;</span> ON SEE</button>
+            <button data-sub="10"><span class="fpick-icon">&#128172;</span> ON TEXT</button>
+            <button data-sub="11"><span class="fpick-icon">&#9889;</span> ON STATE CHANGED</button>
+            <button data-sub="12"><span class="fpick-icon">&#10084;</span> ON HEALTH CHANGED</button>
+            <button data-sub="1"><span class="fpick-icon">&#9881;</span> ON EVERY FRAME</button>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== ITEM PLACEMENT PICKER (Popup) ==================== -->
+<div id="item-picker" style="display:none">
+    <div id="item-picker-header">
+        <h3>Place Object</h3>
+        <button id="item-picker-close">&times;</button>
+    </div>
+    <div id="item-picker-tabs">
+        <button class="ip-tab active" data-itemtype="wall">Walls</button>
+        <button class="ip-tab" data-itemtype="platform">Platforms</button>
+        <button class="ip-tab" data-itemtype="liquid">Liquids</button>
+        <button class="ip-tab" data-itemtype="panel">Panels</button>
+        <button class="ip-tab" data-itemtype="item">Items</button>
+        <button class="ip-tab" data-itemtype="biped">Characters</button>
+        <button class="ip-tab" data-itemtype="light">Lights</button>
+    </div>
+    <div id="item-picker-grid" class="asset-grid"></div>
+    <div id="item-picker-props">
+        <div class="prop-row">
+            <label>Width</label>
+            <input type="number" id="ip-width" value="10" min="1" max="100">
+        </div>
+        <div class="prop-row">
+            <label>Height</label>
+            <input type="number" id="ip-height" value="10" min="1" max="100">
+        </div>
+        <div class="prop-row">
+            <label>Floor Depth</label>
+            <input type="range" id="ip-floordepth" min="0" max="128" value="64">
+        </div>
+        <div class="prop-row">
+            <label>Ceiling Depth</label>
+            <input type="range" id="ip-ceildepth" min="0" max="128" value="80">
+        </div>
+    </div>
+</div>
+
+<!-- ==================== PROPERTIES PANEL (Right-click / Inspector) ==================== -->
+<div id="props-panel" style="display:none">
+    <div id="props-header">
+        <h3 id="props-title">Properties</h3>
+        <button id="props-close">&times;</button>
+    </div>
+    <div id="props-content">
+        <div class="prop-row">
+            <label>Type</label>
+            <span id="prop-type">Wall</span>
+        </div>
+        <div class="prop-row">
+            <label>X</label>
+            <input type="number" id="prop-x" value="0">
+        </div>
+        <div class="prop-row">
+            <label>Y</label>
+            <input type="number" id="prop-y" value="0">
+        </div>
+        <div class="prop-row">
+            <label>Width</label>
+            <input type="number" id="prop-w" value="10">
+        </div>
+        <div class="prop-row">
+            <label>Height</label>
+            <input type="number" id="prop-h" value="10">
+        </div>
+        <div class="prop-row">
+            <label>Floor Depth</label>
+            <input type="range" id="prop-floordepth" min="0" max="128" value="64">
+            <span class="slider-val">64</span>
+        </div>
+        <div class="prop-row">
+            <label>Ceiling Depth</label>
+            <input type="range" id="prop-ceildepth" min="0" max="128" value="80">
+            <span class="slider-val">80</span>
+        </div>
+        <div class="prop-row">
+            <label>Light Level</label>
+            <input type="range" id="prop-lightlevel" min="0" max="255" value="160">
+            <span class="slider-val">160</span>
+        </div>
+        <div class="prop-row">
+            <label>Health</label>
+            <input type="number" id="prop-health" value="100" min="0" max="9999">
+        </div>
+        <div class="prop-row">
+            <label>Strength</label>
+            <input type="number" id="prop-strength" value="20" min="0" max="9999">
+        </div>
+        <div class="prop-row">
+            <label>Speed</label>
+            <input type="number" id="prop-speed" value="10" min="0" max="100">
+        </div>
+        <div class="prop-row">
+            <button id="btn-open-flow" class="action-btn">Edit Logic &#9881;</button>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== SHADER SCRIPTS (copied from index.html) ==================== -->
+<script id="assets_manifest" type="application/json">
+{
+    "types": ["walls","liquids","panels","skies","items","bipeds","liquidmask"],
+    "atlases": [
+        "images/textures-tiles.json",
+        "images/textures-liquids.json",
+        "images/textures-items.json",
+        "",
+        "images/textures-items.json",
+        "images/textures-bipeds.json",
+        ""
+    ],
+    "maps": [
+        {"src":"images/textures-tiles.png","wrapS":1000,"wrapT":1000,"magFilter":1003,"minFilter":1003,"repeat":true},
+        {"src":"images/textures-liquids.png","wrapS":1000,"wrapT":1000,"magFilter":1003,"minFilter":1003,"repeat":true},
+        {"src":"images/textures-items.png","wrapS":1000,"wrapT":1000,"magFilter":1003,"minFilter":1003,"repeat":false},
+        {"src":"images/sky.png","wrapS":1000,"wrapT":1002,"magFilter":1003,"minFilter":1003},
+        {"src":"images/textures-items.png","wrapS":1000,"wrapT":1000,"magFilter":1003,"minFilter":1003,"repeat":false},
+        {"src":"images/textures-bipeds.png","wrapS":1000,"wrapT":1000,"magFilter":1003,"minFilter":1003,"repeat":false},
+        null
+    ],
+    "materials": ["shader","shader","shader","shader","shader","shader","basic"],
+    "side": [2,2,2,2,2,0,0],
+    "colors": [2,0,2,0,2,2,0],
+    "transparent": [false,true,false,false,false,false,true],
+    "depth": [true,true,true,true,true,true,false],
+    "globalUniformsKeys": ["time","lightMap","lightMapSize","cameraAngle","pixelRatio","lights"],
+    "uniformsKeys": {
+        "walls": ["time","lightMap","lightMapSize","selected","textureSet","frames","ceiling"],
+        "liquids": ["time","lightMap","lightMapSize","selected","textureSet","ceiling"],
+        "panels": ["time","lightMap","lightMapSize","selected","textureSet","frames","nofollow"],
+        "skies": ["time","selected","pixelRatio","cameraAngle"],
+        "items": ["time","lightMap","lightMapSize","selected","textureSet","frames","nofollow"],
+        "bipeds": ["time","lightMap","lightMapSize","selected","textureSet","frames","noOverlap"],
+        "liquidmask": []
+    }
+}
+</script>
+
+<!-- We dynamically load shaders from the original index.html -->
+<div id="game_container" style="display:none"></div>
+
+<script>
+// Load shader scripts from index.html before starting the engine
+(function() {
+    var shaderIds = [
+        'vertexShader_walls', 'fragmentShader_walls',
+        'vertexShader_liquids', 'fragmentShader_liquids',
+        'vertexShader_panels', 'fragmentShader_panels',
+        'vertexShader_skies', 'fragmentShader_skies',
+        'vertexShader_items', 'fragmentShader_items',
+        'vertexShader_bipeds', 'fragmentShader_bipeds',
+        'fragmentShader_shadows'
+    ];
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', 'index.html', true);
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            var parser = new DOMParser();
+            var doc = parser.parseFromString(xhr.responseText, 'text/html');
+            shaderIds.forEach(function(id) {
+                var src = doc.getElementById(id);
+                if (src) {
+                    var el = document.createElement('script');
+                    el.id = id;
+                    el.type = src.type;
+                    el.textContent = src.textContent;
+                    document.body.appendChild(el);
+                }
+            });
+            // Signal that shaders are ready
+            window.SHADERS_LOADED = true;
+            if (window._onShadersLoaded) window._onShadersLoaded();
+        }
+    };
+    xhr.send();
+})();
+</script>
+
+<script src="scripts/vendor.js"></script>
+<script src="scripts/main.js"></script>
+<script src="scripts/creator.js"></script>
+</body>
+</html>
