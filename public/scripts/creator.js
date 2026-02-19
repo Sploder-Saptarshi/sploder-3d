@@ -1221,9 +1221,74 @@
     }
 
     /* ----------------------------------------------------------
+       7.5 DRAGGABLE WINDOWS
+    ---------------------------------------------------------- */
+    function makeDraggable(windowEl, handleEl) {
+        var isDragging = false;
+        var startX, startY, startLeft, startTop;
+
+        handleEl.addEventListener('mousedown', function (e) {
+            // Don't drag if clicking the close button
+            if (e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
+
+            isDragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
+
+            // Get current position
+            var rect = windowEl.getBoundingClientRect();
+            startLeft = rect.left;
+            startTop = rect.top;
+
+            // Change to absolute positioning if not already
+            if (windowEl.style.position !== 'absolute' && windowEl.style.position !== 'fixed') {
+                windowEl.style.position = 'absolute';
+            }
+            windowEl.style.left = startLeft + 'px';
+            windowEl.style.right = 'auto';
+            windowEl.style.top = startTop + 'px';
+            windowEl.style.bottom = 'auto';
+
+            handleEl.classList.add('dragging');
+            e.preventDefault();
+        });
+
+        document.addEventListener('mousemove', function (e) {
+            if (!isDragging) return;
+
+            var dx = e.clientX - startX;
+            var dy = e.clientY - startY;
+
+            var newLeft = startLeft + dx;
+            var newTop = startTop + dy;
+
+            // Keep within viewport bounds
+            var maxLeft = window.innerWidth - windowEl.offsetWidth;
+            var maxTop = window.innerHeight - windowEl.offsetHeight;
+
+            newLeft = Math.max(0, Math.min(maxLeft, newLeft));
+            newTop = Math.max(0, Math.min(maxTop, newTop));
+
+            windowEl.style.left = newLeft + 'px';
+            windowEl.style.top = newTop + 'px';
+        });
+
+        document.addEventListener('mouseup', function () {
+            if (isDragging) {
+                isDragging = false;
+                handleEl.classList.remove('dragging');
+            }
+        });
+    }
+
+    /* ----------------------------------------------------------
        8. PROPERTIES PANEL
     ---------------------------------------------------------- */
     function initPropertiesPanel() {
+        var propsPanel = document.getElementById('props-panel');
+        var propsHeader = document.getElementById('props-header');
+        makeDraggable(propsPanel, propsHeader);
+
         document.getElementById('props-close').addEventListener('click', hidePropertiesPanel);
 
         // Open flow editor from properties
@@ -1324,8 +1389,13 @@
     ---------------------------------------------------------- */
     function initFlowEditor() {
         var overlay = document.getElementById('flow-overlay');
+        var flowEditor = document.getElementById('flow-editor');
+        var flowHeader = document.getElementById('flow-header');
         var closeBtn = document.getElementById('flow-close');
         var canvas = document.getElementById('flow-canvas');
+
+        // Make flow editor draggable
+        makeDraggable(flowEditor, flowHeader);
 
         closeBtn.addEventListener('click', function () {
             overlay.style.display = 'none';
@@ -1597,6 +1667,10 @@
       10. ITEM PICKER
     ---------------------------------------------------------- */
     function initItemPicker() {
+        var itemPicker = document.getElementById('item-picker');
+        var itemPickerHeader = document.getElementById('item-picker-header');
+        makeDraggable(itemPicker, itemPickerHeader);
+
         document.getElementById('item-picker-close').addEventListener('click', hideItemPicker);
 
         document.querySelectorAll('.ip-tab').forEach(function (tab) {

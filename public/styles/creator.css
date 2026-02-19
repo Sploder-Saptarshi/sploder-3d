@@ -445,8 +445,14 @@ canvas { image-rendering: pixelated; -ms-interpolation-mode: nearest-neighbor; }
     padding: 10px 16px;
     background: #111833;
     border-bottom: 1px solid #2a3a6a;
+    cursor: move;
+    user-select: none;
 }
 #flow-header h3 { font-size: 14px; color: #8ac; }
+#flow-header.dragging {
+    cursor: grabbing;
+    background: #1a2040;
+}
 #flow-close {
     font-size: 22px;
     color: #888;
@@ -556,8 +562,14 @@ canvas { image-rendering: pixelated; -ms-interpolation-mode: nearest-neighbor; }
     padding: 8px 14px;
     background: #111;
     border-radius: 6px 6px 0 0;
+    cursor: move;
+    user-select: none;
 }
 #item-picker-header h3 { font-size: 13px; }
+#item-picker-header.dragging {
+    cursor: grabbing;
+    background: #1a1a40;
+}
 #item-picker-close {
     font-size: 18px; color: #888;
     width: 24px; height: 24px; border-radius: 50%;
@@ -621,8 +633,14 @@ canvas { image-rendering: pixelated; -ms-interpolation-mode: nearest-neighbor; }
     padding: 8px 14px;
     background: #111;
     border-radius: 6px 6px 0 0;
+    cursor: move;
+    user-select: none;
 }
 #props-header h3 { font-size: 13px; }
+#props-header.dragging {
+    cursor: grabbing;
+    background: #1a1a40;
+}
 #props-close {
     font-size: 18px; color: #888;
     width: 24px; height: 24px; border-radius: 50%;
