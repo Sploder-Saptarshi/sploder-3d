@@ -1046,6 +1046,38 @@
         container.appendChild(tile);
     }
 
+    // Surface-grid specific tile — uses an explicit activeIdx for highlighting instead of
+    // the global selectedTextureIndex (which is a tile-atlas index, irrelevant for liquids).
+    function addSurfaceTile(container, img, frame, index, activeIdx, isLiquid) {
+        var tile = document.createElement('div');
+        tile.className = 'asset-tile';
+        if (index === activeIdx) tile.className += ' selected';
+
+        var c = document.createElement('canvas');
+        c.width = frame[2];
+        c.height = frame[3];
+        var cx = c.getContext('2d');
+        cx.drawImage(img, frame[0], frame[1], frame[2], frame[3], 0, 0, frame[2], frame[3]);
+        tile.appendChild(c);
+
+        tile.addEventListener('click', function () {
+            // Update highlight in this grid
+            container.querySelectorAll('.asset-tile').forEach(function (t) { t.classList.remove('selected'); });
+            tile.classList.add('selected');
+
+            if (isLiquid) {
+                // For liquids, only PROPERTY_LIQUIDTYPE matters for rendering
+                applyTextureToSelection(index);
+            } else {
+                selectedTextureIndex = index;
+                applyTextureToSelection(index);
+                updateSurfacePreview(index);
+            }
+        });
+
+        container.appendChild(tile);
+    }
+
     function applyTextureToSelection(textureIdx) {
         if (!game || !game.model || !game.model.hasSelection()) return;
 
